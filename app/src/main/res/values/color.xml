@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="color_bg">#339b9b</color>
+    <color name="color_light_bg">#88d0c7</color>
+    <color name="color_dark_bg">#336666</color>
+    <color name="color_tr_bg">#55339b9b</color>
+    <color name="color_disabled">#55BEBEBE</color>
+    <color name="color_action_down">#9900FFFF</color>
+
+
+</resources>

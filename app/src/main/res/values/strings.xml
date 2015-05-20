@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name" translatable="false">Portal Lite</string>
+    <string name="str_portal_easier" translatable="false">USING PORTAL EASIER</string>
+    <string name="str_rights" translatable="false">Copyright© 2015 CodeRobot Studio all right reserved</string>
+    <string name="str_id">帳號</string>
+    <string name="str_passwd">密碼</string>
+    <string name="str_login">登入</string>
+    <string name="str_empty_passwd_id">帳號或密碼不可以為空</string>
+    <string name="str_no_network">沒有網際網路連線</string>
+    <string name="title_activity_main">MainActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="schedule">課表</string>
+
+    <string-array name="str_array_weekdays" translatable="false">
+        <item>MON</item>
+        <item>TUE</item>
+        <item>WED</item>
+        <item>THU</item>
+        <item>FRI</item>
+        <item>SAT</item>
+    </string-array>
+
+    <string-array name="str_array_menus">
+        <item>課表</item>
+        <item>成績</item>
+        <item>寄信</item>
+        <item>畢業審查</item>
+        <item>問卷</item>
+        <item>考試課表</item>
+        <item>地圖</item>
+    </string-array>
+
+
+</resources>
