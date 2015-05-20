@@ -71,6 +71,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(intent);
                     finish();
+                    // add finish
                 }
             }, 1000);
 
