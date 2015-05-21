@@ -8,7 +8,6 @@ import java.util.List;
  * Created by Tony on 2015/3/7.
  */
 public class SemestersResult {
-    public int status_code;
 
-    public List<String> semesters;
+    public List<Semester> semesters;
 }

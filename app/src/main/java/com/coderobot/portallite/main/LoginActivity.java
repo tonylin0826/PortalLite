@@ -153,7 +153,8 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
 
                         mPgbLogin.setProgress(30);
 
-                        Semester currentSemester = new Semester(semestersResult.semesters.get(0));
+                        Semester currentSemester = semestersResult.semesters.get(0);
+                        log(currentSemester.toString());
                         mHandler.obtainMessage(Define.Message.MSG_API_GET_SCHEDULE, currentSemester).sendToTarget();
 
                     }
