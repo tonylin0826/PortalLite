@@ -62,7 +62,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
 
         PreferenceInfoManager preferenceInfoManager = PreferenceInfoManager.getInstance(this);
 
-        if (true || preferenceInfoManager.getIsLogin()) {
+        if (preferenceInfoManager.getIsLogin()) {
 
             setUIEnable(false);
             mHandler.postDelayed(new Runnable() {
@@ -121,7 +121,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
             case Define.Message.MSG_API_LOGIN:
                 User user = (User) msg.obj;
 
-                PortalLiteApi.login(user, new PortalLiteApi.PortalLiteApiLoginListener() {
+                PortalLiteApi.login(this, user, new PortalLiteApi.PortalLiteApiLoginListener() {
 
                     @Override
                     public void onReturn(int retCode, String message) {
@@ -141,11 +141,11 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
                 break;
             case Define.Message.MSG_API_GET_SEMESTERS:
 
-                PortalLiteApi.getSemesters(new PortalLiteApi.PortalLiteSemestersListener() {
+                PortalLiteApi.getSemesters(this, new PortalLiteApi.PortalLiteSemestersListener() {
                     @Override
                     public void onReturn(int retCode, SemestersResult semestersResult, String message) {
 
-                        if (semestersResult == null || semestersResult.semesters == null || semestersResult.semesters.isEmpty()) {
+                        if (semestersResult == null || semestersResult.semesters == null || semestersResult.semesters.isEmpty()){
                             setUIEnable(true);
                             toast(message);
                             return;
@@ -153,7 +153,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
 
                         mPgbLogin.setProgress(30);
 
-                        Semester currentSemester = semestersResult.semesters.get(0);
+                        Semester currentSemester = new Semester(semestersResult.semesters.get(0));
                         mHandler.obtainMessage(Define.Message.MSG_API_GET_SCHEDULE, currentSemester).sendToTarget();
 
                     }
@@ -166,7 +166,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
 
                 Semester semester = (Semester) msg.obj;
 
-                PortalLiteApi.getSchedule(semester, new PortalLiteApi.PortalLiteApiScheduleListener() {
+                PortalLiteApi.getSchedule(this, semester, new PortalLiteApi.PortalLiteApiScheduleListener() {
                     @Override
                     public void onReturn(int retCode, ScheduleResult scheduleResult, String message) {
 

@@ -11,6 +11,7 @@ public class PreferenceInfoManager {
     private final static String PREFERENCE_NAME = "PortalLite";
 
     private static String KEY_IS_LOGIN = "KEY_IS_LOGIN";
+    private static String KEY_GET_COOKIE = "KEY_GET_COOKIE";
 
     private static PreferenceInfoManager instance = null;
     private static SharedPreferences preferences;
@@ -35,6 +36,16 @@ public class PreferenceInfoManager {
         if (preferences == null) return;
 
         preferences.edit().putBoolean(KEY_IS_LOGIN, isLogin).apply();
+    }
+
+    public String getLoginCookie() {
+        return (preferences == null) ? null : preferences.getString(KEY_GET_COOKIE, null);
+    }
+
+    public void setLoginCookie(String cookie) {
+        if (preferences == null) return;
+
+        preferences.edit().putString(KEY_GET_COOKIE, cookie).apply();
     }
 
 }

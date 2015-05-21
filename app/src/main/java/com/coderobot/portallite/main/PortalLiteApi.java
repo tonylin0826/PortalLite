@@ -1,8 +1,10 @@
 package com.coderobot.portallite.main;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.coderobot.portallite.manager.PreferenceInfoManager;
 import com.coderobot.portallite.model.data.Semester;
 import com.coderobot.portallite.model.data.User;
 import com.coderobot.portallite.model.response.LoginResult;
@@ -22,8 +24,10 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by Tony on 2/14/15.
@@ -38,18 +42,20 @@ public class PortalLiteApi {
     private static final String SEMESTERS_API = BASE_URL + "semesters";
     private static final String SCHEDULE_API = BASE_URL + "schedule";
 
-    public static void login(User user, PortalLiteApiLoginListener listener) {
+    public static void login(Context context, User user, PortalLiteApiLoginListener listener) {
 
-        new LoginTask(listener).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, user);
+        new LoginTask(context, listener).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, user);
     }
 
     private static class LoginTask extends AsyncTask<User, Void, Void> {
 
         private PortalLiteApiLoginListener mListener;
         private LoginResult mLoginResult;
+        private Context mContext;
 
-        public LoginTask(PortalLiteApiLoginListener listener) {
-            this.mListener = listener;
+        public LoginTask(Context context, PortalLiteApiLoginListener listener) {
+            mListener = listener;
+            mContext = context;
         }
 
         @Override
@@ -57,7 +63,7 @@ public class PortalLiteApi {
             log("LoginTask doInBackground");
 
 
-            String result = postLogin(LOGIN_API, users[0]);
+            String result = postLogin(mContext, LOGIN_API, users[0]);
 
             if (result != null) {
                 mLoginResult = new Gson().fromJson(result, LoginResult.class);
@@ -79,23 +85,29 @@ public class PortalLiteApi {
         }
     }
 
-    public static void getSemesters(PortalLiteSemestersListener listener) {
+    public static void getSemesters(Context context, PortalLiteSemestersListener listener) {
 
-        new SemestersTask(listener).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        new SemestersTask(context, listener).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     private static class SemestersTask extends AsyncTask<Void, Void, String> {
 
+        private Context mContext;
         private PortalLiteSemestersListener mListener;
 
-        public SemestersTask(PortalLiteSemestersListener listener) {
-            this.mListener = listener;
+        public SemestersTask(Context context, PortalLiteSemestersListener listener) {
+            mContext = context;
+            mListener = listener;
         }
 
         @Override
         protected String doInBackground(Void... params) {
+            PreferenceInfoManager preferenceInfoManager = PreferenceInfoManager.getInstance(mContext);
+            String cookie = preferenceInfoManager.getLoginCookie();
+            if (cookie == null) return null;
 
             HttpGet httpGet = new HttpGet(SEMESTERS_API);
+            httpGet.addHeader("Cookie", cookie);
             HttpClient client = new DefaultHttpClient();
 
             HttpResponse httpResponse;
@@ -120,37 +132,44 @@ public class PortalLiteApi {
             super.onPostExecute(aResult);
 
             if (aResult != null) {
+                log("semester = " + aResult);
                 mListener.onReturn(SUCCESS, new Gson().fromJson(aResult, SemestersResult.class), "Get semesters success");
             } else
                 mListener.onReturn(FAILED, null, "Get semester failed");
         }
     }
 
-    public static void getSchedule(Semester semester, PortalLiteApiScheduleListener listener) {
+    public static void getSchedule(Context context, Semester semester, PortalLiteApiScheduleListener listener) {
 
-        new ScheduleTask(listener).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, semester);
+        new ScheduleTask(context, listener).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, semester);
     }
 
     private static class ScheduleTask extends AsyncTask<Semester, Void, String> {
 
+        private Context mContext;
         private PortalLiteApiScheduleListener mListener;
 
-        public ScheduleTask(PortalLiteApiScheduleListener listener) {
-            this.mListener = listener;
+        public ScheduleTask(Context context, PortalLiteApiScheduleListener listener) {
+            mContext = context;
+            mListener = listener;
         }
 
         @Override
         protected String doInBackground(Semester... semesters) {
-            log("LoginTask doInBackground");
+            log("ScheduleTask doInBackground");
 
-            return post(SCHEDULE_API, semesters[0]);
+            ArrayList<NameValuePair> params = new ArrayList<>();
+
+            params.add(new BasicNameValuePair("semester", semesters[0].toString()));
+
+            return post(mContext, SCHEDULE_API, params);
 
         }
 
         @Override
         protected void onPostExecute(String aResult) {
             super.onPostExecute(aResult);
-            log("LoginTask onPostExecute");
+            log("ScheduleTask onPostExecute");
 
             if (aResult != null)
                 mListener.onReturn(SUCCESS, new Gson().fromJson(aResult, ScheduleResult.class), "Get schedule success");
@@ -160,26 +179,37 @@ public class PortalLiteApi {
         }
     }
 
-    private static String post(String uri, Object content) {
-        Gson gson = new Gson();
-        String entity = gson.toJson(content);
+    private static String post(Context context, String uri, ArrayList<NameValuePair> params) {
+
+        PreferenceInfoManager preferenceInfoManager = PreferenceInfoManager.getInstance(context);
+        String cookie = preferenceInfoManager.getLoginCookie();
+
+
+        if (cookie == null) {
+            log("1 post result = null");
+            return null;
+        }
+
 
         HttpResponse httpResponse;
         try {
             HttpPost post = new HttpPost(new URI(uri));
 
-            post.setHeader("Content-Type", "application/json; charset=utf-8");
+            post.addHeader("Cookie", cookie);
 
+            UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, HTTP.UTF_8);
             log("post = " + entity);
 
-            post.setEntity(new StringEntity(entity));
+            post.setEntity(entity);
 
             DefaultHttpClient httpClient = new DefaultHttpClient();
             httpResponse = httpClient.execute(post);
 
+            log("httpResponse.getStatusLine().getStatusCode() = " + httpResponse.getStatusLine().getStatusCode());
+
             if (httpResponse.getStatusLine().getStatusCode() == 200) {
                 String result = EntityUtils.toString(httpResponse.getEntity());
-                log("post result = " + result);
+                log("2 post result = " + result);
                 return result;
 
             }
@@ -188,11 +218,12 @@ public class PortalLiteApi {
             e.printStackTrace();
         }
 
-        log("post result = null");
+        log("3 post result = null");
         return null;
     }
 
-    private static String postLogin(String uri, User user) {
+    private static String postLogin(Context context, String uri, User user) {
+        PreferenceInfoManager preferenceInfoManager = PreferenceInfoManager.getInstance(context);
         HttpResponse httpResponse;
         try {
             HttpPost post = new HttpPost(new URI(uri));
@@ -213,8 +244,12 @@ public class PortalLiteApi {
             httpResponse = httpClient.execute(post);
 
             if (httpResponse.getStatusLine().getStatusCode() == 200) {
+
                 String result = EntityUtils.toString(httpResponse.getEntity());
+                String cookie = Arrays.toString(httpResponse.getHeaders("Set-Cookie"));
+                preferenceInfoManager.setLoginCookie(cookie);
                 log("post result = " + result);
+                log("login cookie = " + cookie);
                 return result;
 
             }

@@ -10,5 +10,5 @@ import java.util.List;
 public class SemestersResult {
     public int status_code;
 
-    public List<Semester> semesters;
+    public List<String> semesters;
 }
