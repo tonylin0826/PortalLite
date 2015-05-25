@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/app_name"
-            android:textColor="@android:color/white"
+            android:textColor="@color/md_teal_a400_color_code"
             android:textSize="60sp" />
 
         <TextView
@@ -40,7 +40,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:background="@android:color/white"
+            android:background="@color/color_light_bg"
             android:orientation="vertical"
             android:paddingLeft="30dp"
             android:paddingRight="30dp">
@@ -51,6 +51,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:inputType="textWebEmailAddress"
+                android:textColor="@android:color/white"
                 android:layout_marginTop="25dp"
                 android:ems="10"
                 android:hint="@string/str_id" />
@@ -61,6 +62,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="25dp"
+                android:textColor="@android:color/white"
                 android:ems="10"
                 android:hint="@string/str_passwd"
                 android:inputType="textPassword" />
@@ -91,5 +93,7 @@
         android:layout_alignParentBottom="true"
         android:visibility="gone"
         android:max="100"
+        custom:progress_reached_color="@color/md_teal_a400_color_code"
+        custom:progress_unreached_color="@android:color/transparent"
         custom:progress_text_color="@android:color/white"/>
 </RelativeLayout>

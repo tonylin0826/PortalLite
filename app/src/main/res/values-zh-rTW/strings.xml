@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="str_id">帳號</string>
+    <string name="str_passwd">密碼</string>
+    <string name="str_login">登入</string>
+    <string name="str_empty_passwd_id">帳號或密碼不可以為空</string>
+    <string name="str_no_network">沒有網際網路連線</string>
+    <string name="str_schedule">課表</string>
+
+    <string-array name="str_array_weekdays">
+        <item>一</item>
+        <item>二</item>
+        <item>三</item>
+        <item>四</item>
+        <item>五</item>
+        <item>六</item>
+    </string-array>
+
+    <string-array name="str_array_menus">
+        <item>課表</item>
+        <item>成績</item>
+        <item>寄信</item>
+        <item>畢業審查</item>
+        <item>問卷</item>
+        <item>考試課表</item>
+        <item>地圖</item>
+    </string-array>
+
+</resources>

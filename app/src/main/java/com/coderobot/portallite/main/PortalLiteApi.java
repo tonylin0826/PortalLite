@@ -5,11 +5,11 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.coderobot.portallite.manager.PreferenceInfoManager;
+import com.coderobot.portallite.model.data.Course;
 import com.coderobot.portallite.model.data.Semester;
 import com.coderobot.portallite.model.data.User;
-import com.coderobot.portallite.model.response.ScheduleResult;
-import com.coderobot.portallite.model.response.SemestersResult;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -22,9 +22,11 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by the great Tony on 2/14/15.
@@ -102,8 +104,9 @@ public class PortalLiteApi {
                 httpResponse = client.execute(httpGet);
 
                 if (httpResponse.getStatusLine().getStatusCode() == 200) {
-
-                    return EntityUtils.toString(httpResponse.getEntity());
+                    String result = EntityUtils.toString(httpResponse.getEntity());
+                    log("result = " + result);
+                    return result;
                 }
 
             } catch (Exception e) {
@@ -119,7 +122,9 @@ public class PortalLiteApi {
             super.onPostExecute(aResult);
 
             if (aResult != null) {
-                mListener.onReturn(SUCCESS, new Gson().fromJson(aResult, SemestersResult.class), "Get semesters success");
+                Type semestersType = new TypeToken<List<Semester>>(){}.getType();
+                List<Semester> semesters = new Gson().fromJson(aResult, semestersType);
+                mListener.onReturn(SUCCESS, semesters, "Get semesters success");
             } else
                 mListener.onReturn(FAILED, null, "Get semester failed");
         }
@@ -158,8 +163,11 @@ public class PortalLiteApi {
             super.onPostExecute(aResult);
             log("ScheduleTask onPostExecute");
 
+            Type scheduleType = new TypeToken<List<Course>>(){}.getType();
+            List<Course> courses = new Gson().fromJson(aResult, scheduleType);
+
             if (aResult != null)
-                mListener.onReturn(SUCCESS, new Gson().fromJson(aResult, ScheduleResult.class), "Get schedule success");
+                mListener.onReturn(SUCCESS, courses, "Get schedule success");
             else
                 mListener.onReturn(FAILED, null, "Get schedule failed");
 
@@ -193,7 +201,7 @@ public class PortalLiteApi {
 
             log("status code = " + statusCode);
             if (httpResponse.getStatusLine().getStatusCode() == 200) {
-                String result = EntityUtils.toString(httpResponse.getEntity());
+                String result = EntityUtils.toString(httpResponse.getEntity(), "ISO-8859-1");
                 log("post result = " + result);
                 return result;
             }
@@ -250,12 +258,12 @@ public class PortalLiteApi {
 
     public interface PortalLiteSemestersListener {
 
-        void onReturn(int retCode, SemestersResult semestersResult, String message);
+        void onReturn(int retCode, List<Semester> semesters, String message);
     }
 
     public interface PortalLiteApiScheduleListener {
 
-        void onReturn(int retCode, ScheduleResult scheduleResult, String message);
+        void onReturn(int retCode, List<Course> courses, String message);
     }
 
     private static void log(String msg) {

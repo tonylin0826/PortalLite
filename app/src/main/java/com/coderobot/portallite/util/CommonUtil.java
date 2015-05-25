@@ -7,7 +7,10 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import com.coderobot.portallite.model.data.ClassTime;
+
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -60,5 +63,14 @@ public class CommonUtil {
             e.printStackTrace();
         }
         return date;
+    }
+
+    public static String classTimeListToString(List<ClassTime> classTimes) {
+        StringBuilder result = new StringBuilder("");
+        for (ClassTime classTime : classTimes) {
+            result.append("__,__").append(classTime);
+        }
+
+        return result.toString();
     }
 }

@@ -12,9 +12,17 @@ import android.util.TypedValue;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import com.amulyakhare.textdrawable.TextDrawable;
 import com.coderobot.portallite.R;
+import com.coderobot.portallite.model.data.ClassTime;
+import com.coderobot.portallite.model.data.Course;
+import com.coderobot.portallite.model.data.Semester;
 import com.coderobot.portallite.model.ui.WeekPagerIndicator;
 import com.yalantis.contextmenu.lib.ContextMenuDialogFragment;
 import com.yalantis.contextmenu.lib.MenuObject;
@@ -29,6 +37,7 @@ public class MainActivity extends ActionBarActivity {
     private ScheduleAdapter mAdapter;
     private ArrayList<View> mScheduleViews;
     private ContextMenuDialogFragment mContextMenuDialogFragment;
+    private Semester mCurrentSemester;
 
     private View root;
     private int width;
@@ -100,18 +109,12 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void initView() {
+        mCurrentSemester = Global.preferenceInfoManager.getCurrentSemester();
+
         root = findViewById(R.id.root);
 
-        mScheduleViews = new ArrayList<>();
-        for (int i = 0; i < 6; i++) {
-            TextView v = new TextView(this);
-            v.setBackgroundColor(Color.WHITE);
-            v.setText("" + (i + 1));
-            mScheduleViews.add(v);
-        }
-
         mViewPager = (ViewPager) findViewById(R.id.pager);
-        mAdapter = new ScheduleAdapter(mScheduleViews);
+        mAdapter = new ScheduleAdapter(mCurrentSemester);
 
         mViewPager.setAdapter(mAdapter);
         WeekPagerIndicator weekPagerIndicator = (WeekPagerIndicator) findViewById(R.id.indicator);
@@ -120,10 +123,21 @@ public class MainActivity extends ActionBarActivity {
 
     private class ScheduleAdapter extends PagerAdapter {
 
-        private ArrayList<View> mViews;
+        private ArrayList<LinearLayout> mViews = new ArrayList<>();
+        private ArrayList<Course> mCourses;
 
-        public ScheduleAdapter(ArrayList<View> views) {
-            mViews = views;
+        public ScheduleAdapter(Semester semester) {
+            mCourses = Global.portalLiteDB.getCourses(semester);
+
+            for (int i = 0; i < 6; i++) {
+                LinearLayout linearLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.layout_schedule, null);
+                ListView listView = (ListView) linearLayout.findViewById(R.id.listview);
+
+                listView.setAdapter(new CourseAdapter(mCourses, i + 1));
+
+
+                mViews.add(linearLayout);
+            }
         }
 
         @Override
@@ -133,9 +147,10 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
-            View view = mViews.get(position);
-            container.addView(view);
-            return view;
+            LinearLayout linearLayout = (LinearLayout) mViews.get(position);
+
+            container.addView(linearLayout);
+            return linearLayout;
         }
 
         @Override
@@ -147,16 +162,92 @@ public class MainActivity extends ActionBarActivity {
         public boolean isViewFromObject(View view, Object object) {
             return view == object;
         }
-
-        public void addView(View view) {
-            if (mViews == null) return;
-
-            mViews.add(view);
-            notifyDataSetChanged();
-        }
     }
 
     private void log(String msg) {
         Log.d(TAG, msg);
+    }
+
+
+    private class CourseAdapter extends BaseAdapter {
+
+
+        private final int mDay;
+        private ArrayList<String> mNames = new ArrayList<>();
+        private ArrayList<String> mRooms = new ArrayList<>();
+        private ArrayList<String> mIDs = new ArrayList<>();
+        private ArrayList<ClassTime> mClasstimes = new ArrayList<>();
+
+
+        public CourseAdapter(ArrayList<Course> courses, int day) {
+
+            mDay = day;
+            log("1course count = " + courses.size());
+            for (Course course : courses) {
+                for (ClassTime classTime : course.ctimes) {
+                    if (classTime.day_of_week == day) {
+                        mNames.add(course.name);
+                        mRooms.add(course.classroom);
+                        mIDs.add(course.id);
+                        mClasstimes.add(classTime);
+                    }
+
+                }
+            }
+
+        }
+
+        @Override
+        public int getCount() {
+            return mNames.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return mNames.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View linearLayout;
+            if (convertView != null) linearLayout = convertView;
+            else
+                linearLayout = getLayoutInflater().inflate(R.layout.layout_schedule_listview_item2, parent, false);
+
+            TextView tvTime = (TextView) linearLayout.findViewById(R.id.time);
+
+
+            ClassTime classTime = mClasstimes.get(position);
+            String name = mNames.get(position);
+            String room = mRooms.get(position);
+
+
+            tvTime.setText("第" + classTime.time_of_day + "節 " + String.format("%d:10~%d:00", classTime.time_of_day + 7, classTime.time_of_day + 8));
+
+            TextView tvName = (TextView) linearLayout.findViewById(R.id.name);
+            tvName.setText(name);
+
+            TextView tvRoom = (TextView) linearLayout.findViewById(R.id.room);
+            tvRoom.setText(room);
+
+
+            ImageView imID = (ImageView) linearLayout.findViewById(R.id.course_id);
+
+            TextDrawable textDrawable = TextDrawable.builder()
+                    .beginConfig()
+                    .fontSize(40)
+                    .textColor(Color.WHITE)
+                    .endConfig()
+                    .buildRound(mIDs.get(position), Color.parseColor("#78909c"));
+
+            imID.setImageDrawable(textDrawable);
+
+            return linearLayout;
+        }
     }
 }

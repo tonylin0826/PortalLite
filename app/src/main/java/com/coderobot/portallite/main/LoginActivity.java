@@ -18,12 +18,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.coderobot.portallite.R;
-import com.coderobot.portallite.manager.PreferenceInfoManager;
 import com.coderobot.portallite.model.data.Course;
 import com.coderobot.portallite.model.data.Semester;
 import com.coderobot.portallite.model.data.User;
-import com.coderobot.portallite.model.response.ScheduleResult;
-import com.coderobot.portallite.model.response.SemestersResult;
 import com.coderobot.portallite.util.AnimUtil;
 import com.coderobot.portallite.util.CommonUtil;
 import com.coderobot.portallite.util.UIUtil;
@@ -49,6 +46,8 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+
+
         initView();
 
         initDialog();
@@ -60,9 +59,8 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
     protected void onResume() {
         super.onResume();
 
-        PreferenceInfoManager preferenceInfoManager = PreferenceInfoManager.getInstance(this);
 
-        if (preferenceInfoManager.getIsLogin()) {
+        if (Global.preferenceInfoManager.getIsLogin()) {
 
             setUIEnable(false);
             mHandler.postDelayed(new Runnable() {
@@ -122,7 +120,6 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
                 User user = (User) msg.obj;
 
                 PortalLiteApi.login(this, user, new PortalLiteApi.PortalLiteApiLoginListener() {
-
                     @Override
                     public void onReturn(int retCode, String message) {
                         if (retCode < 0) {
@@ -135,7 +132,6 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
 
                         mHandler.obtainMessage(Define.Message.MSG_API_GET_SEMESTERS).sendToTarget();
                     }
-
                 });
 
                 break;
@@ -143,20 +139,21 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
 
                 PortalLiteApi.getSemesters(this, new PortalLiteApi.PortalLiteSemestersListener() {
                     @Override
-                    public void onReturn(int retCode, SemestersResult semestersResult, String message) {
-
-                        if (semestersResult == null || semestersResult.semesters == null || semestersResult.semesters.isEmpty()){
+                    public void onReturn(int retCode, List<Semester> semesters, String message) {
+                        if (semesters == null || semesters.isEmpty()) {
                             setUIEnable(true);
                             toast(message);
                             return;
                         }
 
                         mPgbLogin.setProgress(30);
+                        Global.portalLiteDB.insert(semesters);
 
-                        Semester currentSemester = semestersResult.semesters.get(0);
+                        mPgbLogin.setProgress(50);
+                        Semester currentSemester = semesters.get(0);
+                        Global.preferenceInfoManager.setCurrentSemester(currentSemester);
                         log(currentSemester.toString());
                         mHandler.obtainMessage(Define.Message.MSG_API_GET_SCHEDULE, currentSemester).sendToTarget();
-
                     }
                 });
                 break;
@@ -169,21 +166,26 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
 
                 PortalLiteApi.getSchedule(this, semester, new PortalLiteApi.PortalLiteApiScheduleListener() {
                     @Override
-                    public void onReturn(int retCode, ScheduleResult scheduleResult, String message) {
-
-                        if (scheduleResult == null || scheduleResult.courses == null || scheduleResult.courses.isEmpty()) {
+                    public void onReturn(int retCode, List<Course> courses, String message) {
+                        if (courses == null || courses.isEmpty()) {
                             setUIEnable(true);
                             toast(message);
                             return;
                         }
 
-                        mPgbLogin.setProgress(50);
+                        mPgbLogin.setProgress(75);
 
-                        List<Course> courses = scheduleResult.courses;
+                        Global.portalLiteDB.insert(courses);
 
+                        mPgbLogin.setProgress(100);
+                        Global.portalLiteDB.logAll();
+
+                        Global.preferenceInfoManager.setIsLogin(true);
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
                     }
                 });
-
                 break;
 
         }
