@@ -19,6 +19,9 @@ import android.widget.Toast;
 
 import com.coderobot.portallite.R;
 import com.coderobot.portallite.model.data.Course;
+import com.coderobot.portallite.model.data.CourseInfo;
+import com.coderobot.portallite.model.data.Homework;
+import com.coderobot.portallite.model.data.Material;
 import com.coderobot.portallite.model.data.Semester;
 import com.coderobot.portallite.model.data.User;
 import com.coderobot.portallite.util.AnimUtil;
@@ -32,6 +35,7 @@ import java.util.List;
 
 public class LoginActivity extends FragmentActivity implements View.OnClickListener {
     private static final String TAG = "LoginActivity";
+    private Global global;
 
     private NumberProgressBar mPgbLogin;
     private EditText mEdtID;
@@ -41,12 +45,15 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
     private UIHandler mHandler = new UIHandler(this);
     private Button mBtnLogin;
 
+    private int mDownloadCount = 0;
+    private User mUser;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-
+        global = (Global) getApplicationContext();
 
         initView();
 
@@ -60,7 +67,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
         super.onResume();
 
 
-        if (Global.preferenceInfoManager.getIsLogin()) {
+        if (global.preferenceInfoManager.getIsLogin()) {
 
             setUIEnable(false);
             mHandler.postDelayed(new Runnable() {
@@ -105,7 +112,9 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
                 mPgbLogin.setVisibility(View.VISIBLE);
                 mPgbLogin.setProgress(0);
 
-                mHandler.obtainMessage(Define.Message.MSG_API_LOGIN, new User(mEdtID.getText().toString(), mEdtPassWd.getText().toString())).sendToTarget();
+                mUser = new User(mEdtID.getText().toString(), mEdtPassWd.getText().toString());
+
+                mHandler.obtainMessage(Define.Message.MSG_API_LOGIN, mUser).sendToTarget();
 
                 break;
             case R.id.tv_app_name:
@@ -146,12 +155,12 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
                             return;
                         }
 
-                        mPgbLogin.setProgress(30);
-                        Global.portalLiteDB.insert(semesters);
+                        mPgbLogin.setProgress(15);
+                        global.portalLiteDB.insert(semesters);
 
-                        mPgbLogin.setProgress(50);
+                        mPgbLogin.setProgress(20);
                         Semester currentSemester = semesters.get(0);
-                        Global.preferenceInfoManager.setCurrentSemester(currentSemester);
+                        global.preferenceInfoManager.setCurrentSemester(currentSemester);
                         log(currentSemester.toString());
                         mHandler.obtainMessage(Define.Message.MSG_API_GET_SCHEDULE, currentSemester).sendToTarget();
                     }
@@ -173,19 +182,98 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
                             return;
                         }
 
-                        mPgbLogin.setProgress(75);
+                        mPgbLogin.setProgress(25);
 
-                        Global.portalLiteDB.insert(courses);
+                        global.portalLiteDB.insert(courses);
 
-                        mPgbLogin.setProgress(100);
-                        Global.portalLiteDB.logAll();
+                        mPgbLogin.setProgress(30);
 
-                        Global.preferenceInfoManager.setIsLogin(true);
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        startActivity(intent);
-                        finish();
+                        mHandler.obtainMessage(Define.Message.MSG_API_GET_COURSE_DETAIL, courses).sendToTarget();
+
                     }
                 });
+                break;
+
+            case Define.Message.MSG_API_GET_COURSE_DETAIL:
+
+                if (msg.obj == null) break;
+
+                log("MSG_API_GET_COURSE_DETAIL");
+
+                final List<Course> courses = (List<Course>) msg.obj;
+
+                final int delta = 70 / courses.size() / 3;
+
+                for (Course course : courses) {
+
+                    PortalLiteApi.getCourseInfo(this, course, new PortalLiteApi.PortalLiteApiCourseInfoListener() {
+                        @Override
+                        public void onReturn(int retCode, List<CourseInfo> courseInfos, String message) {
+                            log("getCourseInfo onReturn");
+                            if (courseInfos == null) {
+                                toast(message);
+                                return;
+                            }
+
+                            mPgbLogin.setProgress(mPgbLogin.getProgress() + delta);
+
+                            global.portalLiteDB.insert(courseInfos);
+
+                        }
+                    });
+
+                    PortalLiteApi.getMaterial(this, course, new PortalLiteApi.PortalLiteApiMaterialListener() {
+                        @Override
+                        public void onReturn(int retCode, List<Material> materials, String message) {
+
+                            log("getMaterial onReturn");
+                            if (materials == null) {
+                                toast(message);
+                                return;
+                            }
+
+                            mPgbLogin.setProgress(mPgbLogin.getProgress() + delta);
+                            global.portalLiteDB.insert(materials);
+
+                        }
+                    });
+
+                    PortalLiteApi.getHomework(this, mUser, course, new PortalLiteApi.PortalLiteApiHomeworkListener() {
+                        @Override
+                        public void onReturn(int retCode, List<Homework> homeworks, String message) {
+                            log("getHomework onReturn");
+                            if (homeworks == null) {
+                                toast(message);
+                                return;
+                            }
+
+                            mPgbLogin.setProgress(mPgbLogin.getProgress() + delta);
+                            global.portalLiteDB.insert(homeworks);
+
+
+                            mHandler.obtainMessage(Define.Message.MSG_LOGIN_FINISHED, courses.size()).sendToTarget();
+                        }
+                    });
+                }
+
+                break;
+
+            case Define.Message.MSG_LOGIN_FINISHED:
+                mDownloadCount++;
+                int size = (int) msg.obj;
+                log("MSG_LOGIN_FINISHED mDownloadCount = " + mDownloadCount + " size = " + size);
+
+                if (size != mDownloadCount) return;
+
+                mPgbLogin.setProgress(100);
+
+                global.portalLiteDB.logAll();
+
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+
+
                 break;
 
         }

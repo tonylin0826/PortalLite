@@ -6,6 +6,9 @@ import android.util.Log;
 
 import com.coderobot.portallite.manager.PreferenceInfoManager;
 import com.coderobot.portallite.model.data.Course;
+import com.coderobot.portallite.model.data.CourseInfo;
+import com.coderobot.portallite.model.data.Homework;
+import com.coderobot.portallite.model.data.Material;
 import com.coderobot.portallite.model.data.Semester;
 import com.coderobot.portallite.model.data.User;
 import com.google.gson.Gson;
@@ -40,6 +43,9 @@ public class PortalLiteApi {
     private static final String LOGIN_API = BASE_URL + "login";
     private static final String SEMESTERS_API = BASE_URL + "semesters";
     private static final String SCHEDULE_API = BASE_URL + "schedule";
+    private static final String COURSE_INFO_API = BASE_URL + "course/info";
+    private static final String MATERIAL_API = BASE_URL + "course/material";
+    private static final String HOMEWORK_API = BASE_URL + "course/homework";
 
     public static void login(Context context, User user, PortalLiteApiLoginListener listener) {
 
@@ -174,7 +180,169 @@ public class PortalLiteApi {
         }
     }
 
+    public static void getCourseInfo(Context context, Course course, PortalLiteApiCourseInfoListener listener) {
+
+        new CourseInfoTask(context, listener).execute(course);
+    }
+
+    private static class CourseInfoTask extends AsyncTask<Course, Void, String> {
+
+        private Context mContext;
+        private PortalLiteApiCourseInfoListener mListener;
+        private String mId;
+
+        public CourseInfoTask(Context context, PortalLiteApiCourseInfoListener listener) {
+            mContext = context;
+            mListener = listener;
+        }
+
+        @Override
+        protected String doInBackground(Course... course) {
+            log("CourseInfoTask doInBackground");
+
+            ArrayList<NameValuePair> params = new ArrayList<>();
+
+            params.add(new BasicNameValuePair("id", course[0].id + ""));
+            params.add(new BasicNameValuePair("ctype", course[0].ctype + ""));
+            params.add(new BasicNameValuePair("year", course[0].semester.year + ""));
+            params.add(new BasicNameValuePair("semester", course[0].semester.semester + ""));
+
+            mId = course[0].id;
+
+            return post(mContext, COURSE_INFO_API, params);
+
+        }
+
+        @Override
+        protected void onPostExecute(String aResult) {
+            super.onPostExecute(aResult);
+            log("CourseInfoTask onPostExecute");
+
+            if (aResult != null) {
+                Type courseInfosType = new TypeToken<List<CourseInfo>>(){}.getType();
+                List<CourseInfo> courseInfos = new Gson().fromJson(aResult, courseInfosType);
+
+                for (CourseInfo courseInfo : courseInfos) courseInfo.id = mId;
+
+                mListener.onReturn(SUCCESS, courseInfos, "Get CourseInfo success " + mId);
+            } else
+                mListener.onReturn(FAILED, null, "Get CourseInfo failed" + mId);
+
+        }
+    }
+
+    public static void getMaterial(Context context, Course course, PortalLiteApiMaterialListener listener) {
+
+        new MaterialTask(context, listener).execute(course);
+    }
+
+    private static class MaterialTask extends AsyncTask<Course, Void, String> {
+
+        private Context mContext;
+        private PortalLiteApiMaterialListener mListener;
+        private String mId;
+
+        public MaterialTask(Context context, PortalLiteApiMaterialListener listener) {
+            mContext = context;
+            mListener = listener;
+        }
+
+        @Override
+        protected String doInBackground(Course... course) {
+            log("MaterialTask doInBackground");
+
+            ArrayList<NameValuePair> params = new ArrayList<>();
+
+            params.add(new BasicNameValuePair("id", course[0].id + ""));
+            params.add(new BasicNameValuePair("ctype", course[0].ctype + ""));
+            params.add(new BasicNameValuePair("year", course[0].semester.year + ""));
+            params.add(new BasicNameValuePair("semester", course[0].semester.semester + ""));
+
+            mId = course[0].id;
+
+            return post(mContext, MATERIAL_API, params);
+
+        }
+
+        @Override
+        protected void onPostExecute(String aResult) {
+            super.onPostExecute(aResult);
+            log("MaterialTask onPostExecute");
+
+            if (aResult != null) {
+                Type courseInfosType = new TypeToken<List<Material>>(){}.getType();
+                List<Material> materials = new Gson().fromJson(aResult, courseInfosType);
+
+                for (Material material : materials) material.id = mId;
+
+                mListener.onReturn(SUCCESS, materials, "Get Material success " + mId);
+            } else
+                mListener.onReturn(FAILED, null, "Get Material failed" + mId);
+
+        }
+    }
+
+    public static void getHomework(Context context, User user, Course course, PortalLiteApiHomeworkListener listener) {
+
+        new HomeworkTask(context, listener).execute(user, course);
+
+    }
+
+    private static class HomeworkTask extends AsyncTask<Object, Void, String> {
+
+        private Context mContext;
+        private PortalLiteApiHomeworkListener mListener;
+        private String mId;
+
+        public HomeworkTask(Context context, PortalLiteApiHomeworkListener listener) {
+            mContext = context;
+            mListener = listener;
+        }
+
+        @Override
+        protected String doInBackground(Object... object) {
+            log("HomeworkTask doInBackground");
+
+            ArrayList<NameValuePair> params = new ArrayList<>();
+
+            User user = (User) object[0];
+            Course course = (Course) object[1];
+
+            params.add(new BasicNameValuePair("account", user.account));
+            params.add(new BasicNameValuePair("password", user.password));
+            params.add(new BasicNameValuePair("id", course.id + ""));
+            params.add(new BasicNameValuePair("ctype", course.ctype + ""));
+            params.add(new BasicNameValuePair("year", course.semester.year + ""));
+            params.add(new BasicNameValuePair("semester", course.semester.semester + ""));
+
+            mId = course.id;
+
+            return post(mContext, HOMEWORK_API, params);
+
+        }
+
+        @Override
+        protected void onPostExecute(String aResult) {
+            super.onPostExecute(aResult);
+            log("HomeworkTask onPostExecute");
+
+            if (aResult != null) {
+                Type courseInfosType = new TypeToken<List<Homework>>(){}.getType();
+                List<Homework> homeworks = new Gson().fromJson(aResult, courseInfosType);
+
+                for (Homework homework : homeworks) homework.id = mId;
+
+                mListener.onReturn(SUCCESS, homeworks, "Get Homework success " + mId);
+            } else
+                mListener.onReturn(FAILED, null, "Get Homework failed" + mId);
+
+        }
+    }
+
     private static String post(Context context, String uri, ArrayList<NameValuePair> params) {
+
+        log("post " + uri);
+        log("params = " + params.toString());
 
         PreferenceInfoManager preferenceInfoManager = PreferenceInfoManager.getInstance(context);
         String cookie = preferenceInfoManager.getLoginCookie();
@@ -201,7 +369,7 @@ public class PortalLiteApi {
 
             log("status code = " + statusCode);
             if (httpResponse.getStatusLine().getStatusCode() == 200) {
-                String result = EntityUtils.toString(httpResponse.getEntity(), "ISO-8859-1");
+                String result = EntityUtils.toString(httpResponse.getEntity());
                 log("post result = " + result);
                 return result;
             }
@@ -210,6 +378,7 @@ public class PortalLiteApi {
             e.printStackTrace();
         }
 
+        log("post result = " + null);
         return null;
     }
 
@@ -264,6 +433,18 @@ public class PortalLiteApi {
     public interface PortalLiteApiScheduleListener {
 
         void onReturn(int retCode, List<Course> courses, String message);
+    }
+
+    public interface PortalLiteApiCourseInfoListener{
+        void onReturn(int retCode, List<CourseInfo> courseInfos, String message);
+    }
+
+    public interface PortalLiteApiMaterialListener{
+        void onReturn(int retCode, List<Material> materials, String message);
+    }
+
+    public interface PortalLiteApiHomeworkListener{
+        void onReturn(int retCode, List<Homework> homeworks, String message);
     }
 
     private static void log(String msg) {

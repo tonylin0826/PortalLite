@@ -11,8 +11,8 @@ import com.coderobot.portallite.manager.PreferenceInfoManager;
  * Created by the great Tony on 2015/5/23.
  */
 public class Global extends Application implements Application.ActivityLifecycleCallbacks {
-    public static PortalLiteDB portalLiteDB;
-    public static PreferenceInfoManager preferenceInfoManager;
+    public PortalLiteDB portalLiteDB;
+    public PreferenceInfoManager preferenceInfoManager;
     @Override
     public void onCreate() {
         super.onCreate();

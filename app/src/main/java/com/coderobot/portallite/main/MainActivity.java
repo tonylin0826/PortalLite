@@ -42,11 +42,14 @@ public class MainActivity extends ActionBarActivity {
     private View root;
     private int width;
 
+    private Global global;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        global = (Global) getApplicationContext();
 
         initActionBar();
 
@@ -109,7 +112,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void initView() {
-        mCurrentSemester = Global.preferenceInfoManager.getCurrentSemester();
+        mCurrentSemester = global.preferenceInfoManager.getCurrentSemester();
 
         root = findViewById(R.id.root);
 
@@ -127,7 +130,7 @@ public class MainActivity extends ActionBarActivity {
         private ArrayList<Course> mCourses;
 
         public ScheduleAdapter(Semester semester) {
-            mCourses = Global.portalLiteDB.getCourses(semester);
+            mCourses = global.portalLiteDB.getCourses(semester);
 
             for (int i = 0; i < 6; i++) {
                 LinearLayout linearLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.layout_schedule, null);
