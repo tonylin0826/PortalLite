@@ -1,5 +1,6 @@
 package com.coderobot.portallite.main;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.util.TypedValue;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -138,6 +140,19 @@ public class MainActivity extends ActionBarActivity {
 
                 listView.setAdapter(new CourseAdapter(mCourses, i + 1));
 
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        log("click " + view.getTag());
+                        Intent intent = new Intent(MainActivity.this, ClassActivity.class);
+                        Bundle bundle = new Bundle();
+
+                        bundle.putString(Define.IntentKey.INTENT_COURSE_KEY, (String) view.getTag());
+                        intent.putExtras(bundle);
+
+                        startActivity(intent);
+                    }
+                });
 
                 mViews.add(linearLayout);
             }
@@ -150,7 +165,7 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
-            LinearLayout linearLayout = (LinearLayout) mViews.get(position);
+            LinearLayout linearLayout = mViews.get(position);
 
             container.addView(linearLayout);
             return linearLayout;
@@ -175,7 +190,6 @@ public class MainActivity extends ActionBarActivity {
     private class CourseAdapter extends BaseAdapter {
 
 
-        private final int mDay;
         private ArrayList<String> mNames = new ArrayList<>();
         private ArrayList<String> mRooms = new ArrayList<>();
         private ArrayList<String> mIDs = new ArrayList<>();
@@ -184,7 +198,6 @@ public class MainActivity extends ActionBarActivity {
 
         public CourseAdapter(ArrayList<Course> courses, int day) {
 
-            mDay = day;
             log("1course count = " + courses.size());
             for (Course course : courses) {
                 for (ClassTime classTime : course.ctimes) {
@@ -194,10 +207,8 @@ public class MainActivity extends ActionBarActivity {
                         mIDs.add(course.id);
                         mClasstimes.add(classTime);
                     }
-
                 }
             }
-
         }
 
         @Override
@@ -249,6 +260,8 @@ public class MainActivity extends ActionBarActivity {
                     .buildRound(mIDs.get(position), Color.parseColor("#78909c"));
 
             imID.setImageDrawable(textDrawable);
+
+            linearLayout.setTag(mIDs.get(position));
 
             return linearLayout;
         }

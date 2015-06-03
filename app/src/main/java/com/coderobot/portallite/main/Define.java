@@ -12,4 +12,8 @@ public interface Define {
 
         int MSG_LOGIN_FINISHED = 4;
     }
+
+    interface IntentKey {
+        String INTENT_COURSE_KEY = "INTENT_COURSE_KEY";
+    }
 }

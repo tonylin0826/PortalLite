@@ -238,7 +238,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
                         }
                     });
 
-                    PortalLiteApi.getHomework(this, mUser, course, new PortalLiteApi.PortalLiteApiHomeworkListener() {
+                    PortalLiteApi.getHomework(this, course, new PortalLiteApi.PortalLiteApiHomeworkListener() {
                         @Override
                         public void onReturn(int retCode, List<Homework> homeworks, String message) {
                             log("getHomework onReturn");
@@ -268,11 +268,11 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
                 mPgbLogin.setProgress(100);
 
                 global.portalLiteDB.logAll();
+                global.preferenceInfoManager.setIsLogin(true);
 
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
-
 
                 break;
 

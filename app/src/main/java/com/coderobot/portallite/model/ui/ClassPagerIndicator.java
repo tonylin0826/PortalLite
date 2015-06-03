@@ -17,7 +17,7 @@ import java.util.ArrayList;
 /**
  * Created by Tony on 2015/3/23.
  */
-public class WeekPagerIndicator extends RelativeLayout {
+public class ClassPagerIndicator extends RelativeLayout {
 
     private static final String TAG = "WeekPagerIndicator";
     private ArrayList<View> mViews = new ArrayList<>();
@@ -27,17 +27,17 @@ public class WeekPagerIndicator extends RelativeLayout {
     private int mLastPosition = 0;
     private boolean mDontDoScroll = false;
 
-    public WeekPagerIndicator(Context context) {
+    public ClassPagerIndicator(Context context) {
         super(context);
         init();
     }
 
-    public WeekPagerIndicator(Context context, AttributeSet attrs) {
+    public ClassPagerIndicator(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public WeekPagerIndicator(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ClassPagerIndicator(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
@@ -53,15 +53,15 @@ public class WeekPagerIndicator extends RelativeLayout {
     private void init() {
 
         LayoutInflater layoutInflater = LayoutInflater.from(getContext());
-        View root = layoutInflater.inflate(R.layout.layout_week_indicator, this, false);
+        View root = layoutInflater.inflate(R.layout.layout_class_indicator, this, false);
 
-        int tvIds[] = {R.id.tv_mon, R.id.tv_tue, R.id.tv_wed, R.id.tv_thu, R.id.tv_fri, R.id.tv_sat};
-        int viweIds[] = {R.id.v_mon, R.id.v_tue, R.id.v_wed, R.id.v_thu, R.id.v_fri, R.id.v_sat};
-        String strArray[] = getResources().getStringArray(R.array.str_array_weekdays);
+        int tvIds[] = {R.id.tv_info, R.id.tv_homework, R.id.tv_material};
+        int viweIds[] = {R.id.v_info, R.id.v_homework, R.id.v_material};
+        String strArray[] = getResources().getStringArray(R.array.str_array_class);
 
 
         int color = getResources().getColor(R.color.color_bg);
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 3; i++) {
             SeeThroughTextView seeThroughTextView = (SeeThroughTextView) root.findViewById(tvIds[i]);
             seeThroughTextView.setBackgroundColor(color);
             seeThroughTextView.setText(strArray[i]);
@@ -100,7 +100,7 @@ public class WeekPagerIndicator extends RelativeLayout {
                 }
 
                 if (positionOffset == 0.0f) {
-                    for (int i=0; i<6; i++) {
+                    for (int i=0; i<3; i++) {
                         if (i != position)
                             mViews.get(i).setAlpha(0);
                     }

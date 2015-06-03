@@ -14,7 +14,7 @@
         android:background="@color/color_bg"
         app:contentInsetStart="0dp">
 
-        <include layout="@layout/layout_actionbar" />
+        <include layout="@layout/layout_main_actionbar" />
 
     </android.support.v7.widget.Toolbar>
 

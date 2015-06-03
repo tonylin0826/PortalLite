@@ -282,13 +282,13 @@ public class PortalLiteApi {
         }
     }
 
-    public static void getHomework(Context context, User user, Course course, PortalLiteApiHomeworkListener listener) {
+    public static void getHomework(Context context, Course course, PortalLiteApiHomeworkListener listener) {
 
-        new HomeworkTask(context, listener).execute(user, course);
+        new HomeworkTask(context, listener).execute(course);
 
     }
 
-    private static class HomeworkTask extends AsyncTask<Object, Void, String> {
+    private static class HomeworkTask extends AsyncTask<Course, Void, String> {
 
         private Context mContext;
         private PortalLiteApiHomeworkListener mListener;
@@ -300,16 +300,13 @@ public class PortalLiteApi {
         }
 
         @Override
-        protected String doInBackground(Object... object) {
+        protected String doInBackground(Course... object) {
             log("HomeworkTask doInBackground");
 
             ArrayList<NameValuePair> params = new ArrayList<>();
 
-            User user = (User) object[0];
-            Course course = (Course) object[1];
+            Course course = object[0];
 
-            params.add(new BasicNameValuePair("account", user.account));
-            params.add(new BasicNameValuePair("password", user.password));
             params.add(new BasicNameValuePair("id", course.id + ""));
             params.add(new BasicNameValuePair("ctype", course.ctype + ""));
             params.add(new BasicNameValuePair("year", course.semester.year + ""));

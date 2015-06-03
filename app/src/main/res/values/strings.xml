@@ -30,5 +30,15 @@
         <item>Map</item>
     </string-array>
 
+    <string-array name="str_array_class">
+        <item>News</item>
+        <item>Materials</item>
+        <item>Homeworks</item>
+    </string-array>
+    <string name="title_activity_class">ClassActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
 
 </resources>

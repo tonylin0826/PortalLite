@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.coderobot.portallite.model.data.ClassTime;
 import com.coderobot.portallite.model.data.Course;
 import com.coderobot.portallite.model.data.CourseInfo;
 import com.coderobot.portallite.model.data.Homework;
@@ -16,7 +15,6 @@ import com.coderobot.portallite.model.data.Semester;
 import com.coderobot.portallite.util.CommonUtil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -42,6 +40,7 @@ public class PortalLiteDB extends SQLiteOpenHelper {
 
     /**
      * Do not mix _id with id, id means course id
+     * ctimes use "__,__" as delimiter
      */
     private static final String CREATE_COURSE_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_COURSE + " (" +
             "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -200,25 +199,37 @@ public class PortalLiteDB extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("select * from Course where semester=?", new String[] {semester.year + "/" + semester.semester});
 
-        while (cursor.moveToNext()) {
-            Course course = new Course();
-            course.id = cursor.getString(1);
-            course.name = cursor.getString(2);
-            course.ctype = cursor.getString(3);
-            List<String> tmp = Arrays.asList(cursor.getString(4).split("__,__"));
-            course.ctimes = new ArrayList<>();
-            for (String str : tmp) {
-                if (!str.isEmpty())
-                    course.ctimes.add(new ClassTime(str));
-            }
-            course.classroom = cursor.getString(5);
-            course.semester = new Semester(cursor.getString(6));
+        while (cursor.moveToNext())
+            courses.add(new Course(cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6)));
 
-            courses.add(course);
-        }
         cursor.close();
         return courses;
 
+    }
+
+    public Course getCourse(String courseID) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("select * from Course where id=?", new String[] {courseID});
+
+        if (cursor.getCount() == 1 && cursor.moveToFirst())
+            return new Course(cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6));
+
+        cursor.close();
+        return null;
+    }
+
+    public ArrayList<CourseInfo> getCourseInfo(Course course) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("select * from CourseInfo where id=?", new String[] {course.id});
+
+        ArrayList<CourseInfo> courseInfos = new ArrayList<>();
+
+        while (cursor.moveToNext())
+            courseInfos.add(new CourseInfo(cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6)));
+
+        cursor.close();
+
+        return courseInfos;
     }
 
     public void logAll() {

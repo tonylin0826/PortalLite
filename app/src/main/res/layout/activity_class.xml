@@ -1,0 +1,24 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.coderobot.portallite.main.ClassActivity">
+
+    <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/actionBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:contentInsetEnd="0dp"
+        android:background="@color/color_bg"
+        app:contentInsetStart="0dp">
+
+        <include layout="@layout/layout_class_actionbar" />
+
+    </android.support.v7.widget.Toolbar>
+
+
+    <com.coderobot.portallite.model.ui.ClassPagerIndicator
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true"/>
+</RelativeLayout>
