@@ -15,7 +15,7 @@
         android:layout_gravity="center"
         android:orientation="vertical">
 
-        <TextView
+        <com.coderobot.portallite.model.ui.FontTextView
             android:id="@+id/tv_app_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -24,7 +24,7 @@
             android:textColor="@color/md_teal_a400_color_code"
             android:textSize="60sp" />
 
-        <TextView
+        <com.coderobot.portallite.model.ui.FontTextView
             android:id="@+id/tv_slogan"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

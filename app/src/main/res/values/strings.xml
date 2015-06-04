@@ -20,7 +20,7 @@
         <item>SAT</item>
     </string-array>
 
-    <string-array name="str_array_menus">
+    <string-array name="str_array_menus" >
         <item>Schedule</item>
         <item>Grade</item>
         <item>Mail</item>
@@ -29,6 +29,17 @@
         <item>Test Schedule</item>
         <item>Map</item>
     </string-array>
+
+    <string-array name="str_array_class" translatable="false">
+        <item>最新消息</item>
+        <item>教材下載</item>
+        <item>作業管理</item>
+    </string-array>
+
+    <string name="title_activity_class">ClassActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
 
 
 </resources>

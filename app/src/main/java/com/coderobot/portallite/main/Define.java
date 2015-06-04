@@ -4,12 +4,16 @@ package com.coderobot.portallite.main;
  * Created by Tony on 2015/3/7.
  */
 public interface Define {
-    public interface Message {
-        public int MSG_API_LOGIN = 0;
-        public int MSG_API_GET_SCHEDULE = 1;
-        public int MSG_API_GET_COURSE_INFO = 2;
-        public int MSG_API_GET_COURSE_HOMEWORK = 3;
-        public int MSG_API_GET_COURSE_MATERIAL = 4;
-        public int MSG_API_GET_SEMESTERS = 5;
+    interface Message {
+        int MSG_API_LOGIN = 0;
+        int MSG_API_GET_SCHEDULE = 1;
+        int MSG_API_GET_COURSE_DETAIL = 2;
+        int MSG_API_GET_SEMESTERS = 3;
+
+        int MSG_LOGIN_FINISHED = 4;
+    }
+
+    interface IntentKey {
+        String INTENT_COURSE_KEY = "INTENT_COURSE_KEY";
     }
 }

@@ -1,0 +1,40 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.coderobot.portallite.main.ClassActivity">
+
+    <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/actionBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_bg"
+        app:contentInsetEnd="0dp"
+        app:contentInsetStart="0dp">
+
+        <include layout="@layout/layout_class_actionbar" />
+
+    </android.support.v7.widget.Toolbar>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/actionBar"
+        android:layout_above="@+id/indicator"
+        android:persistentDrawingCache="animation" />
+
+
+    <WebView
+        android:layout_below="@+id/actionBar"
+        android:id="@+id/webview"
+        android:layout_width="50dp"
+        android:layout_height="50dp"/>
+
+    <com.coderobot.portallite.model.ui.ClassPagerIndicator
+        android:id="@+id/indicator"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_alignParentBottom="true" />
+</RelativeLayout>

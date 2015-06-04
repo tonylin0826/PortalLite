@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:baselineAligned="false">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <View
+            android:id="@+id/v_mon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/md_teal_a400_color_code"
+            android:layout_weight="1"
+            android:alpha="0" />
+
+        <View
+            android:id="@+id/v_tue"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/md_teal_a400_color_code"
+            android:layout_weight="1"
+            android:alpha="0" />
+
+        <View
+            android:id="@+id/v_wed"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/md_teal_a400_color_code"
+            android:layout_weight="1"
+            android:alpha="0" />
+
+        <View
+            android:id="@+id/v_thu"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/md_teal_a400_color_code"
+            android:layout_weight="1"
+            android:alpha="0" />
+
+        <View
+            android:id="@+id/v_fri"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/md_teal_a400_color_code"
+            android:layout_weight="1"
+            android:alpha="0" />
+
+        <View
+            android:id="@+id/v_sat"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/md_teal_a400_color_code"
+            android:layout_weight="1"
+            android:alpha="0" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <com.coderobot.portallite.model.ui.SeeThroughTextView
+            android:id="@+id/tv_mon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:layout_weight="1"
+            android:textStyle="bold" />
+
+
+        <com.coderobot.portallite.model.ui.SeeThroughTextView
+            android:id="@+id/tv_tue"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:layout_weight="1"
+            android:textStyle="bold" />
+
+
+        <com.coderobot.portallite.model.ui.SeeThroughTextView
+            android:id="@+id/tv_wed"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:layout_weight="1"
+            android:textStyle="bold" />
+
+
+        <com.coderobot.portallite.model.ui.SeeThroughTextView
+            android:id="@+id/tv_thu"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:layout_weight="1"
+            android:textStyle="bold" />
+
+
+        <com.coderobot.portallite.model.ui.SeeThroughTextView
+            android:id="@+id/tv_fri"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:layout_weight="1"
+            android:textStyle="bold" />
+
+
+        <com.coderobot.portallite.model.ui.SeeThroughTextView
+            android:id="@+id/tv_sat"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:layout_weight="1"
+            android:textStyle="bold" />
+    </LinearLayout>
+</RelativeLayout>

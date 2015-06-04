@@ -10,12 +10,11 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.widget.TextView;
 
 /**
  * Created by Tony on 2015/3/23.
  */
-public class SeeThroughTextView extends TextView {
+public class SeeThroughTextView extends FontTextView {
     Bitmap mMaskBitmap;
     Canvas mMaskCanvas;
     Paint mPaint;

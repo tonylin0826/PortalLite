@@ -1,5 +1,6 @@
 package com.coderobot.portallite.main;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -12,17 +13,18 @@ import android.util.TypedValue;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.coderobot.portallite.R;
 import com.coderobot.portallite.model.data.ClassTime;
 import com.coderobot.portallite.model.data.Course;
 import com.coderobot.portallite.model.data.Semester;
+import com.coderobot.portallite.model.ui.FontTextView;
 import com.coderobot.portallite.model.ui.WeekPagerIndicator;
 import com.yalantis.contextmenu.lib.ContextMenuDialogFragment;
 import com.yalantis.contextmenu.lib.MenuObject;
@@ -42,11 +44,14 @@ public class MainActivity extends ActionBarActivity {
     private View root;
     private int width;
 
+    private Global global;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        global = (Global) getApplicationContext();
 
         initActionBar();
 
@@ -109,7 +114,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void initView() {
-        mCurrentSemester = Global.preferenceInfoManager.getCurrentSemester();
+        mCurrentSemester = global.preferenceInfoManager.getCurrentSemester();
 
         root = findViewById(R.id.root);
 
@@ -127,7 +132,7 @@ public class MainActivity extends ActionBarActivity {
         private ArrayList<Course> mCourses;
 
         public ScheduleAdapter(Semester semester) {
-            mCourses = Global.portalLiteDB.getCourses(semester);
+            mCourses = global.portalLiteDB.getCourses(semester);
 
             for (int i = 0; i < 6; i++) {
                 LinearLayout linearLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.layout_schedule, null);
@@ -135,6 +140,19 @@ public class MainActivity extends ActionBarActivity {
 
                 listView.setAdapter(new CourseAdapter(mCourses, i + 1));
 
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        log("click " + view.getTag());
+                        Intent intent = new Intent(MainActivity.this, ClassActivity.class);
+                        Bundle bundle = new Bundle();
+
+                        bundle.putString(Define.IntentKey.INTENT_COURSE_KEY, (String) view.getTag());
+                        intent.putExtras(bundle);
+
+                        startActivity(intent);
+                    }
+                });
 
                 mViews.add(linearLayout);
             }
@@ -147,7 +165,7 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
-            LinearLayout linearLayout = (LinearLayout) mViews.get(position);
+            LinearLayout linearLayout = mViews.get(position);
 
             container.addView(linearLayout);
             return linearLayout;
@@ -172,7 +190,6 @@ public class MainActivity extends ActionBarActivity {
     private class CourseAdapter extends BaseAdapter {
 
 
-        private final int mDay;
         private ArrayList<String> mNames = new ArrayList<>();
         private ArrayList<String> mRooms = new ArrayList<>();
         private ArrayList<String> mIDs = new ArrayList<>();
@@ -181,7 +198,6 @@ public class MainActivity extends ActionBarActivity {
 
         public CourseAdapter(ArrayList<Course> courses, int day) {
 
-            mDay = day;
             log("1course count = " + courses.size());
             for (Course course : courses) {
                 for (ClassTime classTime : course.ctimes) {
@@ -191,10 +207,8 @@ public class MainActivity extends ActionBarActivity {
                         mIDs.add(course.id);
                         mClasstimes.add(classTime);
                     }
-
                 }
             }
-
         }
 
         @Override
@@ -219,7 +233,7 @@ public class MainActivity extends ActionBarActivity {
             else
                 linearLayout = getLayoutInflater().inflate(R.layout.layout_schedule_listview_item2, parent, false);
 
-            TextView tvTime = (TextView) linearLayout.findViewById(R.id.time);
+            FontTextView tvTime = (FontTextView) linearLayout.findViewById(R.id.time);
 
 
             ClassTime classTime = mClasstimes.get(position);
@@ -229,10 +243,10 @@ public class MainActivity extends ActionBarActivity {
 
             tvTime.setText("第" + classTime.time_of_day + "節 " + String.format("%d:10~%d:00", classTime.time_of_day + 7, classTime.time_of_day + 8));
 
-            TextView tvName = (TextView) linearLayout.findViewById(R.id.name);
+            FontTextView tvName = (FontTextView) linearLayout.findViewById(R.id.name);
             tvName.setText(name);
 
-            TextView tvRoom = (TextView) linearLayout.findViewById(R.id.room);
+            FontTextView tvRoom = (FontTextView) linearLayout.findViewById(R.id.room);
             tvRoom.setText(room);
 
 
@@ -246,6 +260,8 @@ public class MainActivity extends ActionBarActivity {
                     .buildRound(mIDs.get(position), Color.parseColor("#78909c"));
 
             imID.setImageDrawable(textDrawable);
+
+            linearLayout.setTag(mIDs.get(position));
 
             return linearLayout;
         }

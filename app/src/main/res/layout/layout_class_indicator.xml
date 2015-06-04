@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:baselineAligned="false">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <View
+            android:id="@+id/v_info"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/md_teal_a400_color_code"
+            android:layout_weight="1"
+            android:alpha="0" />
+
+        <View
+            android:id="@+id/v_homework"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/md_teal_a400_color_code"
+            android:layout_weight="1"
+            android:alpha="0" />
+
+        <View
+            android:id="@+id/v_material"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/md_teal_a400_color_code"
+            android:layout_weight="1"
+            android:alpha="0" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <com.coderobot.portallite.model.ui.SeeThroughTextView
+            android:id="@+id/tv_info"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:layout_weight="1"
+            android:textStyle="bold" />
+
+
+        <com.coderobot.portallite.model.ui.SeeThroughTextView
+            android:id="@+id/tv_homework"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:layout_weight="1"
+            android:textStyle="bold" />
+
+
+        <com.coderobot.portallite.model.ui.SeeThroughTextView
+            android:id="@+id/tv_material"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:layout_weight="1"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+</RelativeLayout>

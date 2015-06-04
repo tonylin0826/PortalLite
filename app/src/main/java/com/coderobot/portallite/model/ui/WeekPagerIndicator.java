@@ -51,8 +51,9 @@ public class WeekPagerIndicator extends RelativeLayout {
     }
 
     private void init() {
+
         LayoutInflater layoutInflater = LayoutInflater.from(getContext());
-        View root = layoutInflater.inflate(R.layout.layout_indicator, this, false);
+        View root = layoutInflater.inflate(R.layout.layout_week_indicator, this, false);
 
         int tvIds[] = {R.id.tv_mon, R.id.tv_tue, R.id.tv_wed, R.id.tv_thu, R.id.tv_fri, R.id.tv_sat};
         int viweIds[] = {R.id.v_mon, R.id.v_tue, R.id.v_wed, R.id.v_thu, R.id.v_fri, R.id.v_sat};
