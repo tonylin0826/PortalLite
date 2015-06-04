@@ -21,16 +21,10 @@
         android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/actionBar"
         android:layout_above="@+id/indicator"
+        android:layout_below="@+id/actionBar"
         android:persistentDrawingCache="animation" />
 
-
-    <WebView
-        android:layout_below="@+id/actionBar"
-        android:id="@+id/webview"
-        android:layout_width="50dp"
-        android:layout_height="50dp"/>
 
     <com.coderobot.portallite.model.ui.ClassPagerIndicator
         android:id="@+id/indicator"

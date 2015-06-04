@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.coderobot.portallite.model.data.Semester;
+import com.coderobot.portallite.model.data.User;
 
 /**
  * Created by Tony on 2015/3/9.
@@ -15,6 +16,7 @@ public class PreferenceInfoManager {
     private static String KEY_IS_LOGIN = "KEY_IS_LOGIN";
     private static String KEY_GET_COOKIE = "KEY_GET_COOKIE";
     private static String KEY_CURRENT_SEMESTER = "KEY_CURRENT_SEMESTER";
+    private static String KEY_USER = "KEY_USER";
 
     private static PreferenceInfoManager instance = null;
     private static SharedPreferences preferences;
@@ -47,7 +49,7 @@ public class PreferenceInfoManager {
 
     public void setLoginCookie(String cookie) {
         if (preferences == null) return;
-
+        cookie = cookie.replace("]", "").replace("[", "").replace("Set-", "");
         preferences.edit().putString(KEY_GET_COOKIE, cookie).apply();
     }
 
@@ -59,6 +61,16 @@ public class PreferenceInfoManager {
         if (preferences == null) return;
 
         preferences.edit().putString(KEY_CURRENT_SEMESTER, semester.toString()).apply();
+    }
+
+    public User getUser() {
+        return (preferences == null) ? null : new User(preferences.getString(KEY_USER, "test__,__test"));
+    }
+
+    public void setUser(User user) {
+        if (preferences == null) return;
+
+        preferences.edit().putString(KEY_USER, user.toString()).apply();
     }
 
 }

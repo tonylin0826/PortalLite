@@ -5,10 +5,10 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -22,12 +22,12 @@ import com.coderobot.portallite.model.data.Homework;
 import com.coderobot.portallite.model.data.Material;
 import com.coderobot.portallite.model.ui.ClassPagerIndicator;
 import com.coderobot.portallite.model.ui.FontTextView;
-import com.coderobot.portallite.util.CommonUtil;
 
 import java.util.ArrayList;
 
 public class ClassActivity extends ActionBarActivity {
 
+    private static final String TAG = "ClassActivity";
     private Course mCourse;
 
     private ArrayList<CourseInfo> mCourseInfos;
@@ -35,15 +35,12 @@ public class ClassActivity extends ActionBarActivity {
     private ArrayList<Material> mMaterials;
     private Global global;
 
-    private WebView webView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_class);
 
         global = (Global) getApplicationContext();
-        webView = (WebView) findViewById(R.id.webview);
 
         init();
 
@@ -55,6 +52,15 @@ public class ClassActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        PortalLiteApi.login(this, global.preferenceInfoManager.getUser(), new PortalLiteApi.PortalLiteApiLoginListener() {
+            @Override
+            public void onReturn(int retCode, String message) {
+                if (retCode == PortalLiteApi.SUCCESS)
+                    log("relogin");
+            }
+        });
+
     }
 
     @Override
@@ -191,7 +197,8 @@ public class ClassActivity extends ActionBarActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            if (convertView == null) convertView = getLayoutInflater().inflate(R.layout.layout_course_info_listview_item, parent, false);
+            if (convertView == null)
+                convertView = getLayoutInflater().inflate(R.layout.layout_course_info_listview_item, parent, false);
 
             CourseInfo courseInfo = mCourseInfos.get(position);
 
@@ -235,7 +242,8 @@ public class ClassActivity extends ActionBarActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            if (convertView == null) convertView = getLayoutInflater().inflate(R.layout.layout_material_listview_item, parent, false);
+            if (convertView == null)
+                convertView = getLayoutInflater().inflate(R.layout.layout_material_listview_item, parent, false);
 
             final Material material = mMaterials.get(position);
 
@@ -247,13 +255,7 @@ public class ClassActivity extends ActionBarActivity {
             imgDownload.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    CommonUtil.download(ClassActivity.this, "https://portal.yzu.edu.tw/VC2/" + material.attachment.replace("../", ""));
-
-//                    Map<String, String> headers = new HashMap<>();
-//                    String cookie = global.preferenceInfoManager.getLoginCookie();
-//                    headers.put("Cookie", cookie);
-//
-//                    webView.loadUrl("https://portal.yzu.edu.tw/VC2/" + material.attachment.replace("../", ""), headers);
+                    PortalLiteApi.downloadPortalFile(ClassActivity.this, "https://portal.yzu.edu.tw/VC2/" + material.attachment.replace("../", ""));
                 }
             });
 
@@ -261,6 +263,10 @@ public class ClassActivity extends ActionBarActivity {
 
             return convertView;
         }
+    }
+
+    private void log(String msg) {
+        Log.d(TAG, msg);
     }
 
 }

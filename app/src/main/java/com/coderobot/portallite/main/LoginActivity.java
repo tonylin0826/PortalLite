@@ -126,7 +126,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
     private void handleMessage(Message msg) {
         switch (msg.what) {
             case Define.Message.MSG_API_LOGIN:
-                User user = (User) msg.obj;
+                final User user = (User) msg.obj;
 
                 PortalLiteApi.login(this, user, new PortalLiteApi.PortalLiteApiLoginListener() {
                     @Override
@@ -138,7 +138,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
                         }
 
                         mPgbLogin.setProgress(10);
-
+                        global.preferenceInfoManager.setUser(user);
                         mHandler.obtainMessage(Define.Message.MSG_API_GET_SEMESTERS).sendToTarget();
                     }
                 });

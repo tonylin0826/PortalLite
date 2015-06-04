@@ -1,11 +1,15 @@
 package com.coderobot.portallite.util;
 
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 import android.util.Log;
 
 import com.coderobot.portallite.manager.PreferenceInfoManager;
@@ -82,14 +86,6 @@ public class CommonUtil {
         }
 
         return result.toString();
-    }
-
-    public static void download(Context context, String url) {
-
-        log("download " + url);
-
-        get(context, url);
-
     }
 
     private static void get(final Context context, final String url) {

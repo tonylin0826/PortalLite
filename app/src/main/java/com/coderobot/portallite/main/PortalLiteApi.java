@@ -1,7 +1,11 @@
 package com.coderobot.portallite.main;
 
+import android.app.DownloadManager;
 import android.content.Context;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Environment;
 import android.util.Log;
 
 import com.coderobot.portallite.manager.PreferenceInfoManager;
@@ -30,6 +34,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by the great Tony on 2/14/15.
@@ -46,6 +52,11 @@ public class PortalLiteApi {
     private static final String COURSE_INFO_API = BASE_URL + "course/info";
     private static final String MATERIAL_API = BASE_URL + "course/material";
     private static final String HOMEWORK_API = BASE_URL + "course/homework";
+
+    private static final String PORTAL_FILE_URL = "https://portal.yzu.edu.tw/VC2/";
+    private static final String API_SESSION_ID_KEY = "sid_key";
+    private static final String PORTAL_SESSION_ID_KEY = "ASP.NET_SessionId";
+
 
     public static void login(Context context, User user, PortalLiteApiLoginListener listener) {
 
@@ -336,13 +347,47 @@ public class PortalLiteApi {
         }
     }
 
+    public static void downloadPortalFile(Context context, String url) {
+
+        Uri uri = Uri.parse(PORTAL_FILE_URL + url.replace("../", ""));
+        DownloadManager.Request request = new DownloadManager.Request(uri);
+        PreferenceInfoManager preferenceInfoManager = PreferenceInfoManager.getInstance(context);
+        String[] cookies = preferenceInfoManager.getLoginCookie().replace(API_SESSION_ID_KEY, PORTAL_SESSION_ID_KEY).split("Set-Cookie: ");
+        String cookie = cookies[cookies.length - 1].replace("; Path=/", "");
+
+        log("download " + uri.toString());
+        log("cookie = " + cookie);
+
+
+        request.setDescription("Download file");
+        request.addRequestHeader("Cookie", cookie);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            request.allowScanningByMediaScanner();
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        }
+
+        Pattern p = Pattern.compile("File_name=(\\S+)&id");
+        Matcher matcher = p.matcher(uri.toString());
+
+        if (matcher.find()) {
+
+            String fileName = matcher.group(1);
+            log("fileName = " + fileName);
+            request.setTitle(fileName);
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+            DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+            manager.enqueue(request);
+        }
+    }
+
     private static String post(Context context, String uri, ArrayList<NameValuePair> params) {
 
         log("post " + uri);
         log("params = " + params.toString());
 
         PreferenceInfoManager preferenceInfoManager = PreferenceInfoManager.getInstance(context);
-        String cookie = preferenceInfoManager.getLoginCookie().replace("]", "").replace("[", "").replace("Set-", "");
+        String cookie = preferenceInfoManager.getLoginCookie();
 
         if (cookie == null) {
             log("cookie = null");
@@ -391,6 +436,8 @@ public class PortalLiteApi {
 
             params.add(new BasicNameValuePair("account", user.account));
             params.add(new BasicNameValuePair("password", user.password));
+
+            log("params = " + params.toString());
 
             UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, HTTP.UTF_8);
 
