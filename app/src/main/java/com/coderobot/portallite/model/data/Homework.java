@@ -12,4 +12,16 @@ public class Homework {
     public String grade;
     public String subject;
     public String uploaded_file;
+
+    public Homework(String id, String attachment, String course_schedule, String deadline, String detail, String grade, String subject, String uploaded_file) {
+        this.id = id;
+        this.attachment = attachment;
+        this.course_schedule = course_schedule;
+        this.deadline = deadline;
+        this.detail = detail;
+        this.grade = grade;
+        this.subject = subject;
+        this.uploaded_file = uploaded_file;
+
+    }
 }

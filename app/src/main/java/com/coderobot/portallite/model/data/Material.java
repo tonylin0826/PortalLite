@@ -10,4 +10,12 @@ public class Material {
     public String course_schedule;
     public String date;
     public String detail;
+
+    public Material(String id, String attachment, String course_schedule, String date, String detail) {
+        this.id = id;
+        this.attachment = attachment;
+        this.course_schedule = course_schedule;
+        this.date = date;
+        this.detail = detail;
+    }
 }

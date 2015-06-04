@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.coderobot.portallite.R;
@@ -24,6 +23,7 @@ import com.coderobot.portallite.model.data.Homework;
 import com.coderobot.portallite.model.data.Material;
 import com.coderobot.portallite.model.data.Semester;
 import com.coderobot.portallite.model.data.User;
+import com.coderobot.portallite.model.ui.FontTextView;
 import com.coderobot.portallite.util.AnimUtil;
 import com.coderobot.portallite.util.CommonUtil;
 import com.coderobot.portallite.util.UIUtil;
@@ -40,7 +40,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
     private NumberProgressBar mPgbLogin;
     private EditText mEdtID;
     private EditText mEdtPassWd;
-    private TextView mTvAppName;
+    private FontTextView mTvAppName;
     private Dialog mAboutDialog;
     private UIHandler mHandler = new UIHandler(this);
     private Button mBtnLogin;
@@ -287,7 +287,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
         mEdtID = (EditText) findViewById(R.id.edt_id);
         mEdtPassWd = (EditText) findViewById(R.id.edt_password);
         mPgbLogin = (NumberProgressBar) findViewById(R.id.pgb_login_progress);
-        mTvAppName = (TextView) findViewById(R.id.tv_app_name);
+        mTvAppName = (FontTextView) findViewById(R.id.tv_app_name);
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -311,7 +311,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
         mAboutDialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         mAboutDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
-        TextView tvAppVersionBuildTime = (TextView) mAboutDialog.findViewById(R.id.tv_version_build_date);
+        FontTextView tvAppVersionBuildTime = (FontTextView) mAboutDialog.findViewById(R.id.tv_version_build_date);
         tvAppVersionBuildTime.setText(CommonUtil.getVersionName(this) + " " + CommonUtil.getBuildDate(this));
     }
 
@@ -335,7 +335,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
     private void toast(String msg) {
         Toast t = new Toast(this);
         t.setDuration(Toast.LENGTH_SHORT);
-        TextView tv = new TextView(this);
+        FontTextView tv = new FontTextView(this);
         tv.setText(msg);
         tv.setTextColor(Color.parseColor("#228B22"));
         tv.setBackgroundResource(R.drawable.toast_bg);

@@ -2,6 +2,7 @@ package com.coderobot.portallite.main;
 
 import android.app.Activity;
 import android.app.Application;
+import android.graphics.Typeface;
 import android.os.Bundle;
 
 import com.coderobot.portallite.manager.PortalLiteDB;
@@ -13,6 +14,7 @@ import com.coderobot.portallite.manager.PreferenceInfoManager;
 public class Global extends Application implements Application.ActivityLifecycleCallbacks {
     public PortalLiteDB portalLiteDB;
     public PreferenceInfoManager preferenceInfoManager;
+    public Typeface typeface;
     @Override
     public void onCreate() {
         super.onCreate();
@@ -21,6 +23,9 @@ public class Global extends Application implements Application.ActivityLifecycle
 
         portalLiteDB = PortalLiteDB.getInstance(this);
         preferenceInfoManager = PreferenceInfoManager.getInstance(this);
+
+
+        typeface = Typeface.createFromAsset(getAssets(), "fonts/test1.ttf");
 
     }
 

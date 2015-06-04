@@ -6,7 +6,7 @@
     android:orientation="horizontal">
 
 
-    <TextView
+    <com.coderobot.portallite.model.ui.FontTextView
         android:layout_marginTop="15dp"
         android:layout_marginLeft="10dp"
         android:id="@+id/time"
@@ -36,14 +36,14 @@
             android:layout_centerInParent="true"
             android:orientation="vertical">
 
-            <TextView
+            <com.coderobot.portallite.model.ui.FontTextView
                 android:id="@+id/room"
                 android:layout_marginLeft="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/md_yellow_800_color_code"
                 android:text="R1001"/>
-            <TextView
+            <com.coderobot.portallite.model.ui.FontTextView
                 android:id="@+id/name"
                 android:layout_marginLeft="10dp"
                 android:layout_width="wrap_content"

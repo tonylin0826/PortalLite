@@ -342,7 +342,7 @@ public class PortalLiteApi {
         log("params = " + params.toString());
 
         PreferenceInfoManager preferenceInfoManager = PreferenceInfoManager.getInstance(context);
-        String cookie = preferenceInfoManager.getLoginCookie();
+        String cookie = preferenceInfoManager.getLoginCookie().replace("]", "").replace("[", "").replace("Set-", "");
 
         if (cookie == null) {
             log("cookie = null");
@@ -405,6 +405,7 @@ public class PortalLiteApi {
 
             if (statusCode == 200) {
                 String cookie = Arrays.toString(httpResponse.getHeaders("Set-Cookie"));
+                log("cookie = " + cookie);
                 preferenceInfoManager.setLoginCookie(cookie);
                 return true;
             }

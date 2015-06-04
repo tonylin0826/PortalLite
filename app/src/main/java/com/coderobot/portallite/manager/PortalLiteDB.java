@@ -232,6 +232,34 @@ public class PortalLiteDB extends SQLiteOpenHelper {
         return courseInfos;
     }
 
+    public ArrayList<Material> getMaterial(Course course) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("select * from Material where id=?", new String[] {course.id});
+
+        ArrayList<Material> materials = new ArrayList<>();
+
+        while (cursor.moveToNext())
+            materials.add(new Material(cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5)));
+
+        cursor.close();
+
+        return materials;
+    }
+
+    public ArrayList<Homework> getHomeworks(Course course) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("select * from Homework where id=?", new String[] {course.id});
+
+        ArrayList<Homework> homeworks = new ArrayList<>();
+
+        while (cursor.moveToNext())
+            homeworks.add(new Homework(cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(5), cursor.getString(6), cursor.getString(7), cursor.getString(8)));
+
+        cursor.close();
+
+        return homeworks;
+    }
+
     public void logAll() {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery("select * from Semester", null);

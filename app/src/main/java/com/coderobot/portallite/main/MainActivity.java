@@ -18,13 +18,13 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.coderobot.portallite.R;
 import com.coderobot.portallite.model.data.ClassTime;
 import com.coderobot.portallite.model.data.Course;
 import com.coderobot.portallite.model.data.Semester;
+import com.coderobot.portallite.model.ui.FontTextView;
 import com.coderobot.portallite.model.ui.WeekPagerIndicator;
 import com.yalantis.contextmenu.lib.ContextMenuDialogFragment;
 import com.yalantis.contextmenu.lib.MenuObject;
@@ -233,7 +233,7 @@ public class MainActivity extends ActionBarActivity {
             else
                 linearLayout = getLayoutInflater().inflate(R.layout.layout_schedule_listview_item2, parent, false);
 
-            TextView tvTime = (TextView) linearLayout.findViewById(R.id.time);
+            FontTextView tvTime = (FontTextView) linearLayout.findViewById(R.id.time);
 
 
             ClassTime classTime = mClasstimes.get(position);
@@ -243,10 +243,10 @@ public class MainActivity extends ActionBarActivity {
 
             tvTime.setText("第" + classTime.time_of_day + "節 " + String.format("%d:10~%d:00", classTime.time_of_day + 7, classTime.time_of_day + 8));
 
-            TextView tvName = (TextView) linearLayout.findViewById(R.id.name);
+            FontTextView tvName = (FontTextView) linearLayout.findViewById(R.id.name);
             tvName.setText(name);
 
-            TextView tvRoom = (TextView) linearLayout.findViewById(R.id.room);
+            FontTextView tvRoom = (FontTextView) linearLayout.findViewById(R.id.room);
             tvRoom.setText(room);
 
 
