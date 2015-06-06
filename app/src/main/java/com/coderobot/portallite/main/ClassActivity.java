@@ -22,6 +22,7 @@ import com.coderobot.portallite.model.data.Homework;
 import com.coderobot.portallite.model.data.Material;
 import com.coderobot.portallite.model.ui.ClassPagerIndicator;
 import com.coderobot.portallite.model.ui.FontTextView;
+import com.coderobot.portallite.util.CommonUtil;
 
 import java.util.ArrayList;
 
@@ -34,6 +35,7 @@ public class ClassActivity extends ActionBarActivity {
     private ArrayList<Homework> mHomeworks;
     private ArrayList<Material> mMaterials;
     private Global global;
+    private long id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,14 +54,6 @@ public class ClassActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        PortalLiteApi.login(this, global.preferenceInfoManager.getUser(), new PortalLiteApi.PortalLiteApiLoginListener() {
-            @Override
-            public void onReturn(int retCode, String message) {
-                if (retCode == PortalLiteApi.SUCCESS)
-                    log("relogin");
-            }
-        });
 
     }
 
@@ -200,7 +194,7 @@ public class ClassActivity extends ActionBarActivity {
             if (convertView == null)
                 convertView = getLayoutInflater().inflate(R.layout.layout_course_info_listview_item, parent, false);
 
-            CourseInfo courseInfo = mCourseInfos.get(position);
+            final CourseInfo courseInfo = mCourseInfos.get(position);
 
             FontTextView tvDate = (FontTextView) convertView.findViewById(R.id.tv_date);
             FontTextView tvSubject = (FontTextView) convertView.findViewById(R.id.tv_subject);
@@ -212,6 +206,38 @@ public class ClassActivity extends ActionBarActivity {
             tvDetail.setText(courseInfo.detail);
 
             if (courseInfo.attachment == null) imgDownload.setVisibility(View.GONE);
+            else {
+                imgDownload.setVisibility(View.VISIBLE);
+                int fileType = CommonUtil.getFileType(courseInfo.attachment);
+                log("file type = " + fileType);
+                switch (fileType) {
+                    case Define.AttachmentFileType.ZIP:
+                        imgDownload.setImageResource(R.drawable.ic_zip);
+                        break;
+                    case Define.AttachmentFileType.PPT:
+                        imgDownload.setImageResource(R.drawable.ic_ppt);
+                        break;
+                    case Define.AttachmentFileType.PDF:
+                        imgDownload.setImageResource(R.drawable.ic_pdf);
+                        break;
+                    case Define.AttachmentFileType.XLS:
+                        imgDownload.setImageResource(R.drawable.ic_xls);
+                        break;
+                    case Define.AttachmentFileType.OTHER:
+                        imgDownload.setImageResource(R.drawable.ic_txt);
+                        break;
+                }
+
+                imgDownload.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        log("click");
+
+                        DownloadService.startActionDownload(ClassActivity.this, courseInfo.attachment.replace("../", ""));
+                        //PortalLiteApi.testDownload(ClassActivity.this, courseInfo.attachment.replace("../", ""));
+                    }
+                });
+            }
 
             return convertView;
         }
@@ -250,16 +276,41 @@ public class ClassActivity extends ActionBarActivity {
             FontTextView tvDetail = (FontTextView) convertView.findViewById(R.id.tv_detail);
             ImageView imgDownload = (ImageView) convertView.findViewById(R.id.attachment);
 
-            tvDetail.setText(material.detail);
-
-            imgDownload.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    PortalLiteApi.downloadPortalFile(ClassActivity.this, "https://portal.yzu.edu.tw/VC2/" + material.attachment.replace("../", ""));
-                }
-            });
-
             if (material.attachment == null) imgDownload.setVisibility(View.GONE);
+            else {
+                imgDownload.setVisibility(View.VISIBLE);
+                int fileType = CommonUtil.getFileType(material.attachment);
+
+                log("file type = " + fileType);
+                switch (fileType) {
+                    case Define.AttachmentFileType.ZIP:
+                        imgDownload.setImageResource(R.drawable.ic_zip);
+                        break;
+                    case Define.AttachmentFileType.PPT:
+                        imgDownload.setImageResource(R.drawable.ic_ppt);
+                        break;
+                    case Define.AttachmentFileType.PDF:
+                        imgDownload.setImageResource(R.drawable.ic_pdf);
+                        break;
+                    case Define.AttachmentFileType.XLS:
+                        imgDownload.setImageResource(R.drawable.ic_xls);
+                        break;
+                    case Define.AttachmentFileType.OTHER:
+                        imgDownload.setImageResource(R.drawable.ic_txt);
+                        break;
+                }
+
+                tvDetail.setText(material.detail);
+
+                imgDownload.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        log("onclick");
+                        DownloadService.startActionDownload(ClassActivity.this, material.attachment.replace("../", ""));
+                        //PortalLiteApi.testDownload(ClassActivity.this, material.attachment.replace("../", ""));
+                    }
+                });
+            }
 
             return convertView;
         }

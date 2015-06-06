@@ -66,6 +66,13 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
     protected void onResume() {
         super.onResume();
 
+        PortalLiteApi.login(this, global.preferenceInfoManager.getUser(), new PortalLiteApi.PortalLiteApiLoginListener() {
+            @Override
+            public void onReturn(int retCode, String message) {
+                if (retCode == PortalLiteApi.SUCCESS)
+                    log("relogin");
+            }
+        });
 
         if (global.preferenceInfoManager.getIsLogin()) {
 

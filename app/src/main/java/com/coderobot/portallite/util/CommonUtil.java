@@ -1,27 +1,18 @@
 package com.coderobot.portallite.util;
 
-import android.app.DownloadManager;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Environment;
 import android.util.Log;
 
-import com.coderobot.portallite.manager.PreferenceInfoManager;
+import com.coderobot.portallite.main.Define;
 import com.coderobot.portallite.model.data.ClassTime;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
-
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -88,36 +79,28 @@ public class CommonUtil {
         return result.toString();
     }
 
-    private static void get(final Context context, final String url) {
+    public static int getFileType(String fileName) {
+        log("getFileType file = " + fileName);
+        if (fileName.contains(".zip") || fileName.contains(".rar") || fileName.contains(".7z") || fileName.contains(".gz"))
+            return Define.AttachmentFileType.ZIP;
+        else if (fileName.contains(".ppt"))
+            return Define.AttachmentFileType.PPT;
+        else if (fileName.contains(".xls"))
+            return Define.AttachmentFileType.XLS;
+        else if (fileName.contains(".pdf"))
+            return Define.AttachmentFileType.PDF;
+        else
+            return Define.AttachmentFileType.OTHER;
+    }
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                PreferenceInfoManager preferenceInfoManager = PreferenceInfoManager.getInstance(context);
-                String[] cookies = preferenceInfoManager.getLoginCookie().replace("sid_key", "ASP.NET_SessionId").replace("]", "").replace("[", "").split("Set-Cookie: ");
-                String cookie = cookies[cookies.length - 1].replace("; Path=/", "");
-                log("cookie = " + cookie);
-                if (cookie == null) return;
+    public static String[] removeEmptyString(String[] strings) {
+        ArrayList<String> strings1 = new ArrayList<>();
 
-                HttpGet httpGet = new HttpGet(url);
-                httpGet.addHeader("Cookie", cookie);
-                HttpClient client = new DefaultHttpClient();
+        for (String s : strings) {
+            if (s != null && s.length() != 0) strings1.add(s);
+        }
 
-                HttpResponse httpResponse;
-                try {
-                    httpResponse = client.execute(httpGet);
-
-                    if (httpResponse.getStatusLine().getStatusCode() == 200) {
-                        String result = EntityUtils.toString(httpResponse.getEntity());
-                        log("result = " + result);
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-
+        return strings1.toArray(new String[strings1.size()]);
     }
 
     private static void log(String msg) {

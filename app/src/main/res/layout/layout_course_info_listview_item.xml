@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_light_bg"
     android:orientation="horizontal">
 
     <RelativeLayout
@@ -23,7 +24,7 @@
         <ImageView
             android:id="@+id/attachment"
 
-            android:src="@drawable/ic_download"
+            android:src="@drawable/ic_txt"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_width="wrap_content"

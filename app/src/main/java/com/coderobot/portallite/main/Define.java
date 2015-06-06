@@ -16,4 +16,12 @@ public interface Define {
     interface IntentKey {
         String INTENT_COURSE_KEY = "INTENT_COURSE_KEY";
     }
+
+    interface AttachmentFileType {
+        int ZIP = 0;
+        int PPT = 1;
+        int XLS = 2;
+        int PDF = 3;
+        int OTHER = 4;
+    }
 }

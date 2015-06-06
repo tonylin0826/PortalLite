@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 
 import com.coderobot.portallite.manager.PreferenceInfoManager;
 import com.coderobot.portallite.model.data.Course;
@@ -15,6 +16,7 @@ import com.coderobot.portallite.model.data.Homework;
 import com.coderobot.portallite.model.data.Material;
 import com.coderobot.portallite.model.data.Semester;
 import com.coderobot.portallite.model.data.User;
+import com.coderobot.portallite.util.CommonUtil;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -29,8 +31,14 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -53,9 +61,14 @@ public class PortalLiteApi {
     private static final String MATERIAL_API = BASE_URL + "course/material";
     private static final String HOMEWORK_API = BASE_URL + "course/homework";
 
-    private static final String PORTAL_FILE_URL = "https://portal.yzu.edu.tw/VC2/";
-    private static final String API_SESSION_ID_KEY = "sid_key";
-    private static final String PORTAL_SESSION_ID_KEY = "ASP.NET_SessionId";
+    private static final String PORTAL_COURSE_INFO_FILE_URL = "https://portalx.yzu.edu.tw/PortalSocialVB/";
+    private static final String PORTAL_MATERIAL_FILE_URL = "https://portal.yzu.edu.tw/VC2/";
+    private static final String API_OLD_SESSION_ID_KEY = "sid_key";
+    private static final String PORTAL_OLD_SESSION_ID_KEY = "ASP.NET_SessionId";
+    private static final String API_NEW_SESSION_ID_KEY = "sid_x_key";
+    private static final String PORTAL_NEW_SESSION_ID_KEY = "ASP.NET_SessionId";
+    private static final String API_NEW_VERIFY_ID_KEY = "vid_x_key";
+    private static final String PORTAL_NEW_VERIFY_ID_KEY = "W_SC_ID";
 
 
     public static void login(Context context, User user, PortalLiteApiLoginListener listener) {
@@ -139,7 +152,8 @@ public class PortalLiteApi {
             super.onPostExecute(aResult);
 
             if (aResult != null) {
-                Type semestersType = new TypeToken<List<Semester>>(){}.getType();
+                Type semestersType = new TypeToken<List<Semester>>() {
+                }.getType();
                 List<Semester> semesters = new Gson().fromJson(aResult, semestersType);
                 mListener.onReturn(SUCCESS, semesters, "Get semesters success");
             } else
@@ -180,7 +194,8 @@ public class PortalLiteApi {
             super.onPostExecute(aResult);
             log("ScheduleTask onPostExecute");
 
-            Type scheduleType = new TypeToken<List<Course>>(){}.getType();
+            Type scheduleType = new TypeToken<List<Course>>() {
+            }.getType();
             List<Course> courses = new Gson().fromJson(aResult, scheduleType);
 
             if (aResult != null)
@@ -230,7 +245,8 @@ public class PortalLiteApi {
             log("CourseInfoTask onPostExecute");
 
             if (aResult != null) {
-                Type courseInfosType = new TypeToken<List<CourseInfo>>(){}.getType();
+                Type courseInfosType = new TypeToken<List<CourseInfo>>() {
+                }.getType();
                 List<CourseInfo> courseInfos = new Gson().fromJson(aResult, courseInfosType);
 
                 for (CourseInfo courseInfo : courseInfos) courseInfo.id = mId;
@@ -281,7 +297,8 @@ public class PortalLiteApi {
             log("MaterialTask onPostExecute");
 
             if (aResult != null) {
-                Type courseInfosType = new TypeToken<List<Material>>(){}.getType();
+                Type courseInfosType = new TypeToken<List<Material>>() {
+                }.getType();
                 List<Material> materials = new Gson().fromJson(aResult, courseInfosType);
 
                 for (Material material : materials) material.id = mId;
@@ -335,7 +352,8 @@ public class PortalLiteApi {
             log("HomeworkTask onPostExecute");
 
             if (aResult != null) {
-                Type courseInfosType = new TypeToken<List<Homework>>(){}.getType();
+                Type courseInfosType = new TypeToken<List<Homework>>() {
+                }.getType();
                 List<Homework> homeworks = new Gson().fromJson(aResult, courseInfosType);
 
                 for (Homework homework : homeworks) homework.id = mId;
@@ -347,12 +365,13 @@ public class PortalLiteApi {
         }
     }
 
-    public static void downloadPortalFile(Context context, String url) {
+    public static long downloadPortalMaterialFile(Context context, String url) {
 
-        Uri uri = Uri.parse(PORTAL_FILE_URL + url.replace("../", ""));
+        Uri uri = Uri.parse(PORTAL_MATERIAL_FILE_URL + url);
         DownloadManager.Request request = new DownloadManager.Request(uri);
         PreferenceInfoManager preferenceInfoManager = PreferenceInfoManager.getInstance(context);
-        String[] cookies = preferenceInfoManager.getLoginCookie().replace(API_SESSION_ID_KEY, PORTAL_SESSION_ID_KEY).split("Set-Cookie: ");
+        String[] cookies = CommonUtil.removeEmptyString(preferenceInfoManager.getLoginCookie().replace(API_OLD_SESSION_ID_KEY, PORTAL_OLD_SESSION_ID_KEY).split("Cookie: "));
+
         String cookie = cookies[cookies.length - 1].replace("; Path=/", "");
 
         log("download " + uri.toString());
@@ -367,17 +386,134 @@ public class PortalLiteApi {
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         }
 
-        Pattern p = Pattern.compile("File_name=(\\S+)&id");
+        Pattern p = Pattern.compile("ame=(\\S+)&id");
+
         Matcher matcher = p.matcher(uri.toString());
 
         if (matcher.find()) {
 
             String fileName = matcher.group(1);
+            String[] tmp = fileName.split("\\.");
+            String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(tmp[tmp.length - 1]);
+
             log("fileName = " + fileName);
+            log("mime = " + mime);
+
+            request.setMimeType(mime);
             request.setTitle(fileName);
             request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
             DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
-            manager.enqueue(request);
+            return manager.enqueue(request);
+        }
+
+        return -1;
+    }
+
+    public static long downloadPortalCourseInfoFile(Context context, String url) {
+
+        Uri uri = Uri.parse(PORTAL_MATERIAL_FILE_URL + url);
+        DownloadManager.Request request = new DownloadManager.Request(uri);
+        PreferenceInfoManager preferenceInfoManager = PreferenceInfoManager.getInstance(context);
+        String[] cookies = CommonUtil.removeEmptyString(preferenceInfoManager.getLoginCookie().replace(API_NEW_SESSION_ID_KEY, PORTAL_NEW_SESSION_ID_KEY).replace(API_NEW_VERIFY_ID_KEY, PORTAL_NEW_VERIFY_ID_KEY).replace(API_OLD_SESSION_ID_KEY, PORTAL_OLD_SESSION_ID_KEY).split("Cookie: "));
+        log("cookies = " + Arrays.toString(cookies));
+        String cookie1 = cookies[0].replace("; Path=/,", "").replace(" ", "");
+        String cookie2 = cookies[1].replace("; Path=/,", "").replace(" ", "");
+        String cookie = cookies[cookies.length - 1].replace("; Path=/", "");
+
+        log("download " + uri.toString());
+        log("cookie = " + cookie);
+        log("cookie1 = " + cookie1);
+        log("cookie2 = " + cookie2);
+
+        request.setDescription("Download file");
+        request.addRequestHeader("Cookie", cookie);
+        //request.addRequestHeader("Cookie", cookie2);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            request.allowScanningByMediaScanner();
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        }
+
+        Pattern p = Pattern.compile("ame=(\\S+)&id");
+
+        Matcher matcher = p.matcher(uri.toString());
+
+        if (matcher.find()) {
+
+            String fileName = matcher.group(1);
+            String[] tmp = fileName.split("\\.");
+            String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(tmp[tmp.length - 1]);
+
+            log("fileName = " + fileName);
+            log("mime = " + mime);
+
+            request.setMimeType(mime);
+            request.setTitle(fileName);
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+            DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
+            return manager.enqueue(request);
+        }
+
+        return -1;
+    }
+
+    public static void testDownload(Context context, final String aUrl) {
+
+        String u = PORTAL_MATERIAL_FILE_URL + aUrl;
+        PreferenceInfoManager preferenceInfoManager = PreferenceInfoManager.getInstance(context);
+        String[] cookies = CommonUtil.removeEmptyString(preferenceInfoManager.getLoginCookie().replace(API_OLD_SESSION_ID_KEY, PORTAL_OLD_SESSION_ID_KEY).split("Cookie: "));
+        Pattern p = Pattern.compile("ame=(\\S+)&id");
+
+        Matcher matcher = p.matcher(u);
+        String cookie = cookies[cookies.length - 1].replace("; Path=/", "");
+
+        if (matcher.find()) {
+
+            String fileName = matcher.group(1);
+
+            URL url;
+            HttpURLConnection conn;
+            FileOutputStream outputStream = null;
+            InputStream inputStream = null;
+            try {
+                url = new URL(u);
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("Cookie", cookie);
+                inputStream = conn.getInputStream();
+                outputStream = new FileOutputStream(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + File.separator + fileName);
+                
+
+                byte[] buf = new byte[1024];
+
+
+                int c;
+                int avail = inputStream.available();
+
+                while ((c = inputStream.read(buf, 0, buf.length)) > 0) {
+
+                    log(c + " " + avail);
+
+                    avail = inputStream.available();
+
+                    outputStream.write(buf, 0, c);
+                    outputStream.flush();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+
+                try {
+                    if (outputStream != null)
+                        outputStream.close();
+                    if (inputStream != null)
+                        inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
         }
     }
 
@@ -480,15 +616,15 @@ public class PortalLiteApi {
         void onReturn(int retCode, List<Course> courses, String message);
     }
 
-    public interface PortalLiteApiCourseInfoListener{
+    public interface PortalLiteApiCourseInfoListener {
         void onReturn(int retCode, List<CourseInfo> courseInfos, String message);
     }
 
-    public interface PortalLiteApiMaterialListener{
+    public interface PortalLiteApiMaterialListener {
         void onReturn(int retCode, List<Material> materials, String message);
     }
 
-    public interface PortalLiteApiHomeworkListener{
+    public interface PortalLiteApiHomeworkListener {
         void onReturn(int retCode, List<Homework> homeworks, String message);
     }
 

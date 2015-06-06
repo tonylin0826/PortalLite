@@ -25,7 +25,7 @@ public class Global extends Application implements Application.ActivityLifecycle
         preferenceInfoManager = PreferenceInfoManager.getInstance(this);
 
 
-        typeface = Typeface.createFromAsset(getAssets(), "fonts/test1.ttf");
+        typeface = Typeface.createFromAsset(getAssets(), "fonts/test4.ttf");
 
     }
 

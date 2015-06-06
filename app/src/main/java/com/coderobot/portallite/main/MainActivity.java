@@ -139,7 +139,7 @@ public class MainActivity extends ActionBarActivity {
                 ListView listView = (ListView) linearLayout.findViewById(R.id.listview);
 
                 listView.setAdapter(new CourseAdapter(mCourses, i + 1));
-
+                listView.setItemsCanFocus(false);
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
