@@ -66,17 +66,19 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
     protected void onResume() {
         super.onResume();
 
-        PortalLiteApi.login(this, global.preferenceInfoManager.getUser(), new PortalLiteApi.PortalLiteApiLoginListener() {
-            @Override
-            public void onReturn(int retCode, String message) {
-                if (retCode == PortalLiteApi.SUCCESS)
-                    log("relogin");
-            }
-        });
 
         if (global.preferenceInfoManager.getIsLogin()) {
 
             setUIEnable(false);
+
+            PortalLiteApi.login(this, global.preferenceInfoManager.getUser(), new PortalLiteApi.PortalLiteApiLoginListener() {
+                @Override
+                public void onReturn(int retCode, String message) {
+                    if (retCode == PortalLiteApi.SUCCESS)
+                        log("relogin");
+                }
+            });
+
             mHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -166,7 +168,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
                         global.portalLiteDB.insert(semesters);
 
                         mPgbLogin.setProgress(20);
-                        Semester currentSemester = semesters.get(0);
+                        Semester currentSemester = semesters.get(semesters.size() - 3);
                         global.preferenceInfoManager.setCurrentSemester(currentSemester);
                         log(currentSemester.toString());
                         mHandler.obtainMessage(Define.Message.MSG_API_GET_SCHEDULE, currentSemester).sendToTarget();

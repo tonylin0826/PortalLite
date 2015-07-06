@@ -60,7 +60,7 @@ public class DownloadService extends IntentService {
 
         mNotificationManager.notify(DOWNLOAD_COUNT, builder.build());
 
-        PortalLiteApi.testDownload(DownloadService.this, url);
+        PortalLiteApi.downloadPortalFile(DownloadService.this, url);
 
 
         builder.setProgress(100, 100, false).setSmallIcon(android.R.drawable.stat_sys_download_done);

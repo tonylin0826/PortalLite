@@ -1,5 +1,6 @@
 package com.coderobot.portallite.main;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -10,11 +11,12 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
+import com.amulyakhare.textdrawable.TextDrawable;
 import com.coderobot.portallite.R;
 import com.coderobot.portallite.model.data.Course;
 import com.coderobot.portallite.model.data.CourseInfo;
@@ -25,6 +27,7 @@ import com.coderobot.portallite.model.ui.FontTextView;
 import com.coderobot.portallite.util.CommonUtil;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class ClassActivity extends ActionBarActivity {
 
@@ -35,7 +38,7 @@ public class ClassActivity extends ActionBarActivity {
     private ArrayList<Homework> mHomeworks;
     private ArrayList<Material> mMaterials;
     private Global global;
-    private long id;
+    private ArrayList<View> mViews = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,8 +111,31 @@ public class ClassActivity extends ActionBarActivity {
     }
 
     private void initView() {
+
+        // init course info view
+        LinearLayout infoLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.layout_class_detail, null);
+        ListView infoListView = (ListView) infoLayout.findViewById(R.id.listview);
+
+        infoListView.setAdapter(new CourseInfoAdapter(mCourseInfos));
+
+        // init material view
+        LinearLayout materialLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.layout_class_detail, null);
+        ListView materialListView = (ListView) materialLayout.findViewById(R.id.listview);
+
+        materialListView.setAdapter(new MaterialAdapter(mMaterials));
+
+        // init homework view
+        LinearLayout homeworkLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.layout_class_detail, null);
+        ListView homeworkListView = (ListView) homeworkLayout.findViewById(R.id.listview);
+
+        homeworkListView.setAdapter(new HomeworkAdapter(mHomeworks));
+
+        mViews.add(infoLayout);
+        mViews.add(materialLayout);
+        mViews.add(homeworkLayout);
+
         ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
-        viewPager.setAdapter(new ClassPagerAdapter(mCourseInfos, mMaterials, mHomeworks));
+        viewPager.setAdapter(new ClassPagerAdapter(mViews));
 
         ClassPagerIndicator indicator = (ClassPagerIndicator) findViewById(R.id.indicator);
         indicator.setViewPager(viewPager);
@@ -117,28 +143,10 @@ public class ClassActivity extends ActionBarActivity {
 
     private class ClassPagerAdapter extends PagerAdapter {
 
-        private ArrayList<View> mViews = new ArrayList<>();
+        private ArrayList<View> mViews = null;
 
-        public ClassPagerAdapter(ArrayList<CourseInfo> courseInfos, ArrayList<Material> materials, ArrayList<Homework> homeworks) {
-
-            // init course info view
-            LinearLayout infoLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.layout_class_detail, null);
-            ListView infoListView = (ListView) infoLayout.findViewById(R.id.listview);
-
-            infoListView.setAdapter(new CourseInfoAdapter(courseInfos));
-
-            mViews.add(infoLayout);
-
-            // init material view
-            LinearLayout materialLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.layout_class_detail, null);
-            ListView materialListView = (ListView) materialLayout.findViewById(R.id.listview);
-
-            materialListView.setAdapter(new MaterialAdapter(materials));
-
-            mViews.add(materialLayout);
-
-            mViews.add(new Button(ClassActivity.this));
-
+        public ClassPagerAdapter(ArrayList<View> views) {
+            mViews = views;
         }
 
         @Override
@@ -233,8 +241,7 @@ public class ClassActivity extends ActionBarActivity {
                     public void onClick(View v) {
                         log("click");
 
-                        DownloadService.startActionDownload(ClassActivity.this, courseInfo.attachment.replace("../", ""));
-                        //PortalLiteApi.testDownload(ClassActivity.this, courseInfo.attachment.replace("../", ""));
+                        DownloadService.startActionDownload(ClassActivity.this, courseInfo.attachment);
                     }
                 });
             }
@@ -306,11 +313,70 @@ public class ClassActivity extends ActionBarActivity {
                     @Override
                     public void onClick(View v) {
                         log("onclick");
-                        DownloadService.startActionDownload(ClassActivity.this, material.attachment.replace("../", ""));
-                        //PortalLiteApi.testDownload(ClassActivity.this, material.attachment.replace("../", ""));
+                        DownloadService.startActionDownload(ClassActivity.this, material.attachment);
                     }
                 });
             }
+
+            return convertView;
+        }
+    }
+
+    private class HomeworkAdapter extends BaseAdapter {
+
+        private ArrayList<Homework> mHomeworks;
+
+        public HomeworkAdapter(ArrayList<Homework> homeworks) {
+            mHomeworks = homeworks;
+        }
+
+        @Override
+        public int getCount() {
+            return mHomeworks.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return mHomeworks.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if (convertView == null)
+                convertView = getLayoutInflater().inflate(R.layout.layout_homework_listview_item, parent, false);
+
+            Homework homework = mHomeworks.get(position);
+
+            ImageView imgDeadline = (ImageView) convertView.findViewById(R.id.img_deadline);
+            TextView tvSubject = (TextView) convertView.findViewById(R.id.tv_subject);
+            TextView tvDetail = (TextView) convertView.findViewById(R.id.tv_detail);
+
+            int daysLeft = CommonUtil.daysBetween(CommonUtil.formatDate(homework.deadline), Calendar.getInstance());
+
+            if (homework.uploaded_file == null) {
+
+                int color = (daysLeft >= 0) ? Color.parseColor("#1de9b6") : Color.RED;
+
+                TextDrawable textDrawable = TextDrawable.builder()
+                        .beginConfig()
+                        .fontSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16, getResources().getDisplayMetrics()))
+                        .textColor(color)
+                        .bold()
+                        .endConfig()
+                        .buildRound(daysLeft + "", Color.parseColor("#78909c"));
+
+                imgDeadline.setImageDrawable(textDrawable);
+            } else {
+                imgDeadline.setImageResource(R.drawable.ic_check);
+            }
+
+            tvSubject.setText(homework.subject);
+            tvDetail.setText(homework.detail);
 
             return convertView;
         }

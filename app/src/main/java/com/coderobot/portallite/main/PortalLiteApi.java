@@ -361,105 +361,12 @@ public class PortalLiteApi {
                 mListener.onReturn(SUCCESS, homeworks, "Get Homework success " + mId);
             } else
                 mListener.onReturn(FAILED, null, "Get Homework failed" + mId);
-
         }
     }
 
-    public static long downloadPortalMaterialFile(Context context, String url) {
+    public static void downloadPortalFile(Context context, final String aUrl) {
 
-        Uri uri = Uri.parse(PORTAL_MATERIAL_FILE_URL + url);
-        DownloadManager.Request request = new DownloadManager.Request(uri);
-        PreferenceInfoManager preferenceInfoManager = PreferenceInfoManager.getInstance(context);
-        String[] cookies = CommonUtil.removeEmptyString(preferenceInfoManager.getLoginCookie().replace(API_OLD_SESSION_ID_KEY, PORTAL_OLD_SESSION_ID_KEY).split("Cookie: "));
-
-        String cookie = cookies[cookies.length - 1].replace("; Path=/", "");
-
-        log("download " + uri.toString());
-        log("cookie = " + cookie);
-
-
-        request.setDescription("Download file");
-        request.addRequestHeader("Cookie", cookie);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            request.allowScanningByMediaScanner();
-            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        }
-
-        Pattern p = Pattern.compile("ame=(\\S+)&id");
-
-        Matcher matcher = p.matcher(uri.toString());
-
-        if (matcher.find()) {
-
-            String fileName = matcher.group(1);
-            String[] tmp = fileName.split("\\.");
-            String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(tmp[tmp.length - 1]);
-
-            log("fileName = " + fileName);
-            log("mime = " + mime);
-
-            request.setMimeType(mime);
-            request.setTitle(fileName);
-            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
-            DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
-            return manager.enqueue(request);
-        }
-
-        return -1;
-    }
-
-    public static long downloadPortalCourseInfoFile(Context context, String url) {
-
-        Uri uri = Uri.parse(PORTAL_MATERIAL_FILE_URL + url);
-        DownloadManager.Request request = new DownloadManager.Request(uri);
-        PreferenceInfoManager preferenceInfoManager = PreferenceInfoManager.getInstance(context);
-        String[] cookies = CommonUtil.removeEmptyString(preferenceInfoManager.getLoginCookie().replace(API_NEW_SESSION_ID_KEY, PORTAL_NEW_SESSION_ID_KEY).replace(API_NEW_VERIFY_ID_KEY, PORTAL_NEW_VERIFY_ID_KEY).replace(API_OLD_SESSION_ID_KEY, PORTAL_OLD_SESSION_ID_KEY).split("Cookie: "));
-        log("cookies = " + Arrays.toString(cookies));
-        String cookie1 = cookies[0].replace("; Path=/,", "").replace(" ", "");
-        String cookie2 = cookies[1].replace("; Path=/,", "").replace(" ", "");
-        String cookie = cookies[cookies.length - 1].replace("; Path=/", "");
-
-        log("download " + uri.toString());
-        log("cookie = " + cookie);
-        log("cookie1 = " + cookie1);
-        log("cookie2 = " + cookie2);
-
-        request.setDescription("Download file");
-        request.addRequestHeader("Cookie", cookie);
-        //request.addRequestHeader("Cookie", cookie2);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            request.allowScanningByMediaScanner();
-            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        }
-
-        Pattern p = Pattern.compile("ame=(\\S+)&id");
-
-        Matcher matcher = p.matcher(uri.toString());
-
-        if (matcher.find()) {
-
-            String fileName = matcher.group(1);
-            String[] tmp = fileName.split("\\.");
-            String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(tmp[tmp.length - 1]);
-
-            log("fileName = " + fileName);
-            log("mime = " + mime);
-
-            request.setMimeType(mime);
-            request.setTitle(fileName);
-            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
-            DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
-            return manager.enqueue(request);
-        }
-
-        return -1;
-    }
-
-    public static void testDownload(Context context, final String aUrl) {
-
-        String u = PORTAL_MATERIAL_FILE_URL + aUrl;
+        String u = PORTAL_MATERIAL_FILE_URL + aUrl.replace("../", "");
         PreferenceInfoManager preferenceInfoManager = PreferenceInfoManager.getInstance(context);
         String[] cookies = CommonUtil.removeEmptyString(preferenceInfoManager.getLoginCookie().replace(API_OLD_SESSION_ID_KEY, PORTAL_OLD_SESSION_ID_KEY).split("Cookie: "));
         Pattern p = Pattern.compile("ame=(\\S+)&id");
@@ -482,11 +389,8 @@ public class PortalLiteApi {
                 conn.setRequestProperty("Cookie", cookie);
                 inputStream = conn.getInputStream();
                 outputStream = new FileOutputStream(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + File.separator + fileName);
-                
 
                 byte[] buf = new byte[1024];
-
-
                 int c;
                 int avail = inputStream.available();
 

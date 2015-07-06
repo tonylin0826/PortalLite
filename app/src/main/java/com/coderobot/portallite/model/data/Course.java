@@ -33,4 +33,13 @@ public class Course{
         this.semester = new Semester(semester);
     }
 
+    public Course(Course course) {
+        id = course.id;
+        name = course.name;
+        ctype = course.ctype;
+        ctimes = new ArrayList<>();
+        ctimes.addAll(course.ctimes);
+        classroom = course.classroom;
+        semester = course.semester;
+    }
 }

@@ -26,10 +26,13 @@ import com.coderobot.portallite.model.data.Course;
 import com.coderobot.portallite.model.data.Semester;
 import com.coderobot.portallite.model.ui.FontTextView;
 import com.coderobot.portallite.model.ui.WeekPagerIndicator;
+import com.coderobot.portallite.util.CommonUtil;
 import com.yalantis.contextmenu.lib.ContextMenuDialogFragment;
 import com.yalantis.contextmenu.lib.MenuObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class MainActivity extends ActionBarActivity {
@@ -131,6 +134,7 @@ public class MainActivity extends ActionBarActivity {
         private ArrayList<LinearLayout> mViews = new ArrayList<>();
         private ArrayList<Course> mCourses;
 
+
         public ScheduleAdapter(Semester semester) {
             mCourses = global.portalLiteDB.getCourses(semester);
 
@@ -138,7 +142,8 @@ public class MainActivity extends ActionBarActivity {
                 LinearLayout linearLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.layout_schedule, null);
                 ListView listView = (ListView) linearLayout.findViewById(R.id.listview);
 
-                listView.setAdapter(new CourseAdapter(mCourses, i + 1));
+
+                listView.setAdapter(new CourseAdapter(CommonUtil.filterCourse(mCourses, i+1)));
                 listView.setItemsCanFocus(false);
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
@@ -189,36 +194,28 @@ public class MainActivity extends ActionBarActivity {
 
     private class CourseAdapter extends BaseAdapter {
 
-
-        private ArrayList<String> mNames = new ArrayList<>();
-        private ArrayList<String> mRooms = new ArrayList<>();
-        private ArrayList<String> mIDs = new ArrayList<>();
-        private ArrayList<ClassTime> mClasstimes = new ArrayList<>();
+        ArrayList<Course> mCourse;
 
 
-        public CourseAdapter(ArrayList<Course> courses, int day) {
+        public CourseAdapter(ArrayList<Course> courses) {
+            mCourse = courses;
 
-            log("1course count = " + courses.size());
-            for (Course course : courses) {
-                for (ClassTime classTime : course.ctimes) {
-                    if (classTime.day_of_week == day) {
-                        mNames.add(course.name);
-                        mRooms.add(course.classroom);
-                        mIDs.add(course.id);
-                        mClasstimes.add(classTime);
-                    }
+            Collections.sort(mCourse, new Comparator<Course>() {
+                @Override
+                public int compare(Course lhs, Course rhs) {
+                    return lhs.ctimes.get(0).time_of_day - rhs.ctimes.get(0).time_of_day;
                 }
-            }
+            });
         }
 
         @Override
         public int getCount() {
-            return mNames.size();
+            return mCourse.size();
         }
 
         @Override
         public Object getItem(int position) {
-            return mNames.get(position);
+            return mCourse.get(position);
         }
 
         @Override
@@ -236,9 +233,12 @@ public class MainActivity extends ActionBarActivity {
             FontTextView tvTime = (FontTextView) linearLayout.findViewById(R.id.time);
 
 
-            ClassTime classTime = mClasstimes.get(position);
-            String name = mNames.get(position);
-            String room = mRooms.get(position);
+            Course course = mCourse.get(position);
+
+            ClassTime classTime = course.ctimes.get(0);
+            String name = course.name;
+            String room = course.classroom;
+            String id = course.id;
 
 
             tvTime.setText("第" + classTime.time_of_day + "節 " + String.format("%d:10~%d:00", classTime.time_of_day + 7, classTime.time_of_day + 8));
@@ -254,14 +254,14 @@ public class MainActivity extends ActionBarActivity {
 
             TextDrawable textDrawable = TextDrawable.builder()
                     .beginConfig()
-                    .fontSize(40)
+                    .fontSize((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 14, getResources().getDisplayMetrics()))
                     .textColor(Color.WHITE)
                     .endConfig()
-                    .buildRound(mIDs.get(position), Color.parseColor("#78909c"));
+                    .buildRound(id, Color.parseColor("#78909c"));
 
             imID.setImageDrawable(textDrawable);
 
-            linearLayout.setTag(mIDs.get(position));
+            linearLayout.setTag(id);
 
             return linearLayout;
         }
