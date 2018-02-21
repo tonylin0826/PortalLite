@@ -1,13 +1,9 @@
 package com.coderobot.portallite.main;
 
-import android.app.DownloadManager;
 import android.content.Context;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
-import android.webkit.MimeTypeMap;
 
 import com.coderobot.portallite.manager.PreferenceInfoManager;
 import com.coderobot.portallite.model.data.Course;

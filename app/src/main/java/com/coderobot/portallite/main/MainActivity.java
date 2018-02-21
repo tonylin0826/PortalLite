@@ -59,6 +59,7 @@ public class MainActivity extends ActionBarActivity {
         initActionBar();
 
         initView();
+
     }
 
     @Override
@@ -143,7 +144,7 @@ public class MainActivity extends ActionBarActivity {
                 ListView listView = (ListView) linearLayout.findViewById(R.id.listview);
 
 
-                listView.setAdapter(new CourseAdapter(CommonUtil.filterCourse(mCourses, i+1)));
+                listView.setAdapter(new CourseAdapter(CommonUtil.filterCourse(mCourses, i + 1)));
                 listView.setItemsCanFocus(false);
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override

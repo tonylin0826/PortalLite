@@ -16,6 +16,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.coderobot.portallite.R;
 import com.coderobot.portallite.model.data.Course;
 import com.coderobot.portallite.model.data.CourseInfo;
@@ -60,6 +66,24 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
         initDialog();
 
         animateLayout();
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url = "http://www.google.com";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Display the first 500 characters of the response string.
+                        log("Response is: " + response.substring(0, 500));
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                log("That didn't work!");
+            }
+        });
+
+        queue.add(stringRequest);
     }
 
     @Override
